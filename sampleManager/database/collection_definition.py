@@ -38,7 +38,7 @@ class Container(object):
         document_template['container_id'] = self.container_id
         document_template['container_name'] = self.container_name
         document_template['owner_group'] = self.owner_group
-        document_template['item_list'] = self.item_list
+        document_template['collection_ref_id'] = self.collection_ref_id
         return document_template
 
     def save(self, **kwargs):
@@ -52,12 +52,12 @@ class Container(object):
         composed_dict = self.__compose_document()
         _id = db['container'].insert(composed_dict, **kwargs)
         db['container'].ensure_index([('container_id', -1)], unique=True)
-        db['container'].ensure_index([('container_name', -1), ('owner_group', -1)])
+        db['container'].ensure_index([('container_name', -1)], unique=True)
         return _id
 
 
 class Sample(object):
-    def __init__(self, sample_id, container_id, sample_name, collection_id, owner_group):
+    def __init__(self, sample_id, container_id, sample_name, owner_group):
         """
         Sample object constructor
 
@@ -84,7 +84,6 @@ class Sample(object):
         #TODO: Which fields are required, which are optional??
         self.sample_id = sample_id
         self.container_id = container_id
-        self.collection_id = collection_id
         self.sample_name = validate_string(sample_name)
         self.owner_group = validate_int(owner_group)
 
@@ -93,9 +92,7 @@ class Sample(object):
         document_template['sample_id'] = self.sample_id
         document_template['sample_name'] = self.sample_name
         document_template['owner_group'] = self.owner_group
-        document_template['request_list'] = self.request_list
-        document_template['result_list'] = self.result_list
-        document_template['collection_id'] = self.collection_id
+        document_template['container_id'] = self.container_id
         return document_template
 
     def save(self, **kwargs):
@@ -108,7 +105,8 @@ class Sample(object):
         """
         composed_dict = self.__compose_document()
         _id = db['sample'].insert(composed_dict, **kwargs)
-        db['sample'].ensure_index([('sample_id', -1), ('collection_id', -1)], unique=True)
+        db['sample'].ensure_index([('sample_id', -1)], unique=True)
+        db['sample'].ensure_index([('collection_id', -1)], unique=True)
         db['sample'].ensure_index([('sample_name', -1), ('owner_group', -1)])
         return _id
 

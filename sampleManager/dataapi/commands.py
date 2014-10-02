@@ -28,7 +28,7 @@ def save_container(container_id, container_name, owner_group, collection_ref_id=
         raise
 
 
-def save_sample(sample_id, container_id, sample_name, collection_id, owner_group):
+def save_sample(sample_id, container_id, sample_name, owner_group):
     """
     :param sample_id: Unique identifier specific to a sample set by ABBIX collection script
     :type sample_id: int
@@ -50,7 +50,7 @@ def save_sample(sample_id, container_id, sample_name, collection_id, owner_group
     :rtype: None
     """
     sample_obj = Sample(sample_id=sample_id, container_id=container_id, sample_name=sample_name,
-                        collection_id=collection_id, owner_group=owner_group)
+                        owner_group=owner_group)
     try:
         sample_obj.save(wtimeout=100, write_concern={'w': 1})
     except:
@@ -88,31 +88,53 @@ def find_container(container_query_dict):
     return container_cursor
 
 
-def __decode_container_cursor(container_cursor):
-    containers = list()
+def decode_container_cursor(container_cursor):
+    containers = dict()
     for temp_dict in container_cursor:
-        pass
+        containers[temp_dict['container_name']] = temp_dict
+    return containers
 
 
-def find_request():
+def find_request(request_query_dict=dict()):
+    try:
+        sample_cursor = db['sample'].find(request_query_dict)
+    except:
+        raise
+    return sample_cursor
+
+
+def decode_request_cursor(request_cursor):
     pass
+#TODO: Add case check!!!!! Make sure no bogus is sent to the routines!!
+
+def find_sample(sample_query_dict=dict()):
+    try:
+        sample_cursor = db['sample'].find(sample_query_dict)
+    except:
+        raise
+    return sample_cursor
 
 
-def __decode_request_cursor(request_cursor):
-    pass
+def decode_sample_cursor(sample_cursor):
+    samples = dict()
+    for temp_dict in sample_cursor:
+        samples[temp_dict['container_name']] = temp_dict
+    return samples
 
 
-def find_sample():
-    pass
+def get_container_id(container_name):
+    """
+    Returns a container _id given container name
+
+    :param container_name: Name of the specific container
+    :type container_name: str
+
+    :return: container document _id
+    :rtype: bson.ObjectId
+    """
+    cont_obj = find_container({'container_name': container_name})
+    return cont_obj[0]['_id']
 
 
-def __decode_sample_cursor(sample_cursor):
-    pass
-
-
-def __get_container_id(container_query_dict=dict()):
-    pass
-
-
-def __get_sample_id(sample_query_dict=dict()):
+def get_sample_id(sample_query_dict=dict()):
     pass
