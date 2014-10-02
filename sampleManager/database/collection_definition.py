@@ -7,7 +7,7 @@ class Container(object):
     """
     Container instance
     """
-    def __init__(self, container_id, container_name, owner_group, item_list):
+    def __init__(self, container_id, container_name, owner_group, collection_ref_id=list()):
         """
 
         :param container_id: Unique identifier for a given container
@@ -27,12 +27,11 @@ class Container(object):
 
         """
         #TODO: Find out which one of these fields are unique
-        #TODO: Is itemlist list of all samples????
         #TODO: Which fields are required, which are optional??
         self.container_id = container_id
         self.owner_group = validate_int(owner_group)
         self.container_name = validate_string(container_name)
-        self.item_list = validate_list(item_list)
+        self.collection_ref_id = validate_list(collection_ref_id)
 
     def __compose_document(self):
         document_template = dict()
@@ -44,9 +43,11 @@ class Container(object):
 
     def save(self, **kwargs):
         """
+        :param kwargs: pymongo driver specific instructions regarding insert operation
+        :type kwargs: dict
 
-        :param kwargs:
-        :return:
+        :return: Container document _id field
+        :rtype: bson.ObjectId
         """
         composed_dict = self.__compose_document()
         _id = db['container'].insert(composed_dict, **kwargs)
@@ -56,25 +57,36 @@ class Container(object):
 
 
 class Sample(object):
-    def __init__(self, sample_id, sample_name, collection_id, owner_group, request_list, result_list):
+    def __init__(self, sample_id, container_id, sample_name, collection_id, owner_group):
         """
+        Sample object constructor
 
-        :param sample_id:
-        :param sample_name:
-        :param owner_group:
-        :param request_list:
-        :param result_list:
-        :return:
+        :param sample_id: Unique identifier specific to a sample set by ABBIX collection script
+        :type sample_id: int
+
+        :param container_id: foreignkey pointing to container a sample belongs to
+        :type container_id: bson.ObjectId
+
+        :param collection_id: ???
+        :type collection_id: ???
+
+        :param sample_name: Text descriptor for sample
+        :type sample_name: str
+
+        :param owner_group: Denotes the group a specific owner belongs
+        :type owner_group: int
+
+
+        :return: None
+        :rtype: None
         """
+        #TODO: Find out which one of these fields are unique
+        #TODO: Which fields are required, which are optional??
         self.sample_id = sample_id
+        self.container_id = container_id
         self.collection_id = collection_id
         self.sample_name = validate_string(sample_name)
         self.owner_group = validate_int(owner_group)
-        self.request_list = validate_list(request_list)
-        self.result_list = validate_list(result_list)
-        #TODO: Does result list need to be updated once sample is created???
-        #TODO: Updates are nasty, we shld keep it isolated if update needed How about metadataStore and/or a results
-        #TODO: table with suggested fields within resultObj??
 
     def __compose_document(self):
         document_template = dict()
@@ -88,9 +100,11 @@ class Sample(object):
 
     def save(self, **kwargs):
         """
+        :param kwargs: pymongo driver specific instructions regarding insert operation
+        :type kwargs: dict
 
-        :param kwargs:
-        :return:
+        :return: Sample document _id field
+        :rtype: bson.ObjectId
         """
         composed_dict = self.__compose_document()
         _id = db['sample'].insert(composed_dict, **kwargs)
@@ -100,14 +114,21 @@ class Sample(object):
 
 
 class Request(object):
+    #TODO: Find out which one of these fields are unique
+    #TODO: Find out what the fields of Request document are
     def __init__(self, sample_id, request_dict):
         """
 
-        :param sample_id:
-        :param request_dict:
-        :return:
+        :param sample_id: foreginkey pointing at a specific sample's _id field
+        :type sample_id: bson.ObjectId
+
+        :param request_dict: custom field to be filled by ABBOX collection environment
+        :type request_dict: dict
+
+        :return: None
+        :rtype: None
         """
-        self.sample_id = sample_id  #foreignkey
+        self.sample_id = sample_id
         self.request_dict = request_dict
 
     def __compose_document(self):
