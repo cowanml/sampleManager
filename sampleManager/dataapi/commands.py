@@ -3,8 +3,9 @@ __author__ = 'arkilic'
 from sampleManager.database.collection_definition import Container, Request, Sample
 from sampleManager.session.databaseInit import db
 
-#TODO: Add case check!!!!! Make sure no bogus is sent to the routines!!
 
+#TODO: Add case check!!!!! Make sure no bogus is sent to the routines!!
+#TODO: Add bulk_insert
 def save_container(container_id, container_name, owner_group, collection_ref_id=list()):
     """
     :param container_id: Unique identifier for a given container
