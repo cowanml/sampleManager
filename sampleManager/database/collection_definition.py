@@ -106,15 +106,16 @@ class Sample(object):
         composed_dict = self.__compose_document()
         _id = db['sample'].insert(composed_dict, **kwargs)
         db['sample'].ensure_index([('sample_id', -1)], unique=True)
-        db['sample'].ensure_index([('collection_id', -1)], unique=True)
-        db['sample'].ensure_index([('sample_name', -1), ('owner_group', -1)])
+        db['sample'].ensure_index([('container_id', -1)], unique=True)
+        db['sample'].ensure_index([('sample_name', -1)], unique=True)
+        db['sample'].ensure_index([('owner_group', -1)])
         return _id
 
 
 class Request(object):
     #TODO: Find out which one of these fields are unique
     #TODO: Find out what the fields of Request document are
-    def __init__(self, sample_id, request_dict):
+    def __init__(self, sample_id, request_id, request_dict):
         """
 
         :param sample_id: foreginkey pointing at a specific sample's _id field
@@ -128,16 +129,19 @@ class Request(object):
         """
         self.sample_id = sample_id
         self.request_dict = request_dict
+        self.request_id = request_id
 
     def __compose_document(self):
         document_template = dict()
         document_template['sample_id'] = self.sample_id
         document_template['request_dict'] = self.request_dict
+        document_template['request_id'] = self.request_id
         return document_template
 
     def save(self, **kwargs):
         composed_dict = self.__compose_document()
         _id = db['request'].insert(composed_dict, **kwargs)
         db['request'].ensure_index([('sample_id', -1)], unique=True)
+        db['request'].ensure_index([('request_id', -1)], unique=True)
         db['request'].ensure_index([('request_dict', -1)])
         return _id
