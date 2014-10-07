@@ -1,13 +1,14 @@
 __author__ = 'arkilic'
 from sampleManager.session.databaseInit import db
 from sampleManager.database.utility import validate_list, validate_dict, validate_string, validate_int
+from sampleManager.database.utility import validate_container_ref_ids
 
 
 class Container(object):
     """
     Container instance
     """
-    def __init__(self, container_id, container_name, owner_group, collection_ref_id=list()):
+    def __init__(self, container_id, container_name, owner_group, container_ref_id):
         """
 
         :param container_id: Unique identifier for a given container
@@ -28,17 +29,18 @@ class Container(object):
         """
         #TODO: Find out which one of these fields are unique
         #TODO: Which fields are required, which are optional??
+        #TODO: Add validate container_ref_id routine [it is a list of bson.ObjectId objects]
         self.container_id = container_id
         self.owner_group = validate_int(owner_group)
         self.container_name = validate_string(container_name)
-        self.collection_ref_id = validate_list(collection_ref_id)
+        self.container_ref_id = validate_list(container_ref_id)
 
     def __compose_document(self):
         document_template = dict()
         document_template['container_id'] = self.container_id
         document_template['container_name'] = self.container_name
         document_template['owner_group'] = self.owner_group
-        document_template['collection_ref_id'] = self.collection_ref_id
+        document_template['container_ref_id'] = validate_container_ref_ids(self.container_ref_id)
         return document_template
 
     def save(self, **kwargs):
@@ -97,6 +99,8 @@ class Sample(object):
 
     def save(self, **kwargs):
         """
+        Insert a document into Sample collection using the template mandated by the Sample class constructor
+
         :param kwargs: pymongo driver specific instructions regarding insert operation
         :type kwargs: dict
 
@@ -139,6 +143,14 @@ class Request(object):
         return document_template
 
     def save(self, **kwargs):
+        """
+        Insert a document into Sample collection using the template mandated by the Request class constructor
+
+        :param kwargs: pymongo driver specific instructions regarding insert operation
+
+        :return: Request document _id field
+        :rtype: bson.ObjectId
+        """
         composed_dict = self.__compose_document()
         _id = db['request'].insert(composed_dict, **kwargs)
         db['request'].ensure_index([('sample_id', -1)], unique=True)

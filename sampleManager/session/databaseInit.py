@@ -14,7 +14,3 @@ except:
     raise ConnectionFailure('Connection cannot be established')
 
 metadataLogger = DbLogger(db_name=database, host=host, port=int(port))
-
-
-def return_db():
-    return db

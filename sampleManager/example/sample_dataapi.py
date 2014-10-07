@@ -12,7 +12,7 @@ def string_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 #Container Insert/Query Test
-id = randint(0, 1000)
+id = randint(0, 10000)
 cont_name = string_generator()
 save_container(container_id=id, container_name=cont_name, owner_group=0)
 c_crsr = find_container({'container_id': id})
@@ -26,7 +26,7 @@ else:
 
 
 #Sample Insert/Query Test
-s_id = randint(0, 1000)
+s_id = randint(0, 10000)
 samp_name = string_generator()
 save_sample(sample_id=s_id, container_id=cont_id, sample_name=samp_name, owner_group=0)
 s_crsr = find_sample({'sample_id': s_id})
@@ -45,4 +45,18 @@ save_request(sample_id=samp_id, request_dict={'property1': 12.3, 'property_2': '
 r_crsr = find_request({'request_id': r_id})
 entry = decode_request_cursor(request_cursor=r_crsr)
 r_id = get_request_mongo_id(request_id=r_id)
+
+
+#Container encapsulating another container Test
+id = randint(0, 10000)
+cont_name = string_generator()
+save_container(container_id=id, container_name=cont_name, owner_group=0, container_ref_id=[cont_id])
+c_crsr = find_container({'container_id': id})
+entry = decode_container_cursor(c_crsr)
+cont_id2 = get_container_mongo_id(container_name=cont_name)
+if cont_id2 == entry[cont_name]['_id']:
+    print 'save_container() with reference test passed'
+    print 'get_container_id() test passed'
+else:
+    raise Exception('get_container_id test failed')
 

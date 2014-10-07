@@ -1,5 +1,6 @@
 __author__ = 'arkilic'
 import datetime
+from bson import ObjectId
 
 
 def validate_string(entry):
@@ -35,3 +36,15 @@ def validate_int(entry):
         raise TypeError('Entry must be an integer')
     return res
 
+
+def validate_bson_obj(some_object):
+    if isinstance(some_object, ObjectId):
+        pass
+    else:
+        raise TypeError('')
+    
+
+def validate_container_ref_ids(container_ref_id):
+    validate_list(container_ref_id)
+    for entry in container_ref_id:
+        validate_bson_obj(entry)
