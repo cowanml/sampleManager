@@ -3,7 +3,7 @@ from sampleManager.dataapi.commands import save_container, find_container, decod
 from random import randint
 from sampleManager.dataapi.commands import save_sample, find_sample, decode_sample_cursor
 from sampleManager.dataapi.commands import save_request, find_request, decode_request_cursor, get_sample_mongo_id, \
-    get_request_mongo_id
+    get_request_mongo_id, save_multiple_containers
 import random
 import string
 

@@ -32,19 +32,23 @@ def save_container(container_id, container_name, owner_group, container_ref_id=l
     return cont_id
 
 
-def save_multiple_containers(container_object_list):
+def save_multiple_containers(container_object_list=list()):
     #TODO: Finish implementing multiple container insert
     if isinstance(container_object_list, list):
+        temp_dict = dict()
         bulk = db['container'].initialize_ordered_bulk_op()
-        for container in container_object_list:
-            if isinstance(container, Container):
-                pass
-            else:
-                TypeError('Contents of container_object_list must be container objects')
+        if container_object_list:
+            for container in container_object_list:
+                if isinstance(container, Container):
+                    temp_dict = container.__compose_document()
+                    bulk.insert(temp_dict)
+                else:
+                    TypeError('Contents of container_object_list must be container objects')
+            bulk.execute()
+        else:
+            raise IndexError('container_object_list cannot be empty')
     else:
         raise TypeError('container_object_list must be a list')
-
-
 
 
 def find_container(container_query_dict):
