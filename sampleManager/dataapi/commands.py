@@ -7,7 +7,7 @@ import bson
 import pymongo
 
 
-def save_container(container_id, container_name, owner_group, container_ref_id=list()):
+def save_container(container_id, container_name, owner_group, capacity, container_ref_id=list()):
     """
     :param container_id: Unique identifier for a given container
     :type container_id: unspecified
@@ -18,13 +18,14 @@ def save_container(container_id, container_name, owner_group, container_ref_id=l
     :param owner_group: Identifier for given owner
     :type owner_group: int
 
-    :param
+    :param capacity: Specifies the number of samples a container can hold
+    :type capacity: int
 
     :return: Container instance unique identifier
     :rtype: bson.ObjectId
     """
     container_obj = Container(container_id=container_id, container_name=container_name, owner_group=owner_group,
-                              container_ref_id=container_ref_id)
+                              container_ref_id=container_ref_id, capacity=capacity)
     try:
         cont_id = container_obj.save(wtimeout=100, write_concern={'w': 1})
     except:
@@ -33,6 +34,15 @@ def save_container(container_id, container_name, owner_group, container_ref_id=l
 
 
 def save_multiple_containers(container_object_list=list()):
+    """
+    Provides means to bulk create set of containers given a list of container items. Likely to be deprecated.
+
+    :param container_object_list: Given list of container objects, bulk creates containers
+    :type container_object_list: list
+
+    :return: None
+    :rtype: None
+    """
     if isinstance(container_object_list, list):
         temp_dict = dict()
         bulk = db['container'].initialize_ordered_bulk_op()

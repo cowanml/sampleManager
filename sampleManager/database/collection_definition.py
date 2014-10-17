@@ -8,7 +8,7 @@ class Container(object):
     """
     Container instance
     """
-    def __init__(self, container_id, container_name, owner_group, container_ref_id):
+    def __init__(self, container_id, container_name, owner_group, container_ref_id, capacity):
         """
 
         :param container_id: Unique identifier for a given container
@@ -20,8 +20,8 @@ class Container(object):
         :param owner_group: Identifier for given owner
         :type owner_group: int
 
-        :param item_list:
-        :type item_list: list
+        :param capacity: Specifies the number of samples a container can hold
+        :type capacity: int
 
         :return: Container instance unique identifier
         :rtype: bson.ObjectId
@@ -34,13 +34,16 @@ class Container(object):
         self.owner_group = validate_int(owner_group)
         self.container_name = validate_string(container_name)
         self.container_ref_id = validate_list(container_ref_id)
+        self.capacity = validate_int(capacity)
 
     def __compose_document(self):
         document_template = dict()
         document_template['container_id'] = self.container_id
         document_template['container_name'] = self.container_name
         document_template['owner_group'] = self.owner_group
-        document_template['container_ref_id'] = validate_container_ref_ids(self.container_ref_id)
+        document_template['container_ref_id'] = self.container_ref_id
+        document_template['capacity'] = self.capacity
+
         return document_template
 
     def save(self, **kwargs):
