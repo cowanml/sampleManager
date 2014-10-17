@@ -83,7 +83,7 @@ def decode_container_cursor(container_cursor):
     return containers
 
 
-def save_sample(sample_id, container_id, sample_name, owner_group):
+def save_sample(sample_id, container_id, sample_name, owner_group, sample_group_name, sample_position):
     """
     :param sample_id: Unique identifier specific to a sample set by ABBIX collection script
     :type sample_id: int
@@ -100,17 +100,22 @@ def save_sample(sample_id, container_id, sample_name, owner_group):
     :param owner_group: Denotes the group a specific owner belongs
     :type owner_group: int
 
+    :param sample_group_name: provides information regarding the group sample falls under
+    :type sample_group_name: str
+
+    :param sample_position: Denotes the location of which sample is placed within a container
+    :type sample_position: int
 
     :return: Returns _id for sample document
     :rtype: bson.ObjectId
     """
     sample_obj = Sample(sample_id=sample_id, container_id=container_id, sample_name=sample_name,
-                        owner_group=owner_group)
+                        owner_group=owner_group, sample_group_name=sample_group_name, sample_position=sample_position)
     try:
-        samp_id = sample_obj.save(wtimeout=100, write_concern={'w': 1})
+        native_sample_id = sample_obj.save(wtimeout=100, write_concern={'w': 1})
     except:
         raise
-    return samp_id
+    return native_sample_id
 
 
 def find_sample(sample_query_dict=dict()):

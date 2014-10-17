@@ -59,7 +59,7 @@ class Container(object):
 
 
 class Sample(object):
-    def __init__(self, sample_id, container_id, sample_name, owner_group):
+    def __init__(self, sample_id, container_id, sample_name, owner_group, sample_group_name, sample_position):
         """
         Sample object constructor
 
@@ -78,6 +78,12 @@ class Sample(object):
         :param owner_group: Denotes the group a specific owner belongs
         :type owner_group: int
 
+        :param sample_group_name: provides information regarding the group sample falls under
+        :type sample_group_name: str
+
+        :param sample_position: Denotes the location of which sample is placed within a container
+        :type sample_position: int
+
 
         :return: None
         :rtype: None
@@ -88,6 +94,8 @@ class Sample(object):
         self.container_id = container_id
         self.sample_name = validate_string(sample_name)
         self.owner_group = validate_int(owner_group)
+        self.sample_group_name = validate_string(sample_group_name)
+        self.sample_position = validate_int(sample_position)
 
     def __compose_document(self):
         document_template = dict()
@@ -95,6 +103,8 @@ class Sample(object):
         document_template['sample_name'] = self.sample_name
         document_template['owner_group'] = self.owner_group
         document_template['container_id'] = self.container_id
+        document_template['sample_group_name'] = self.sample_group_name
+        document_template['sample_position'] = self.sample_position
         return document_template
 
     def save(self, **kwargs):
@@ -113,6 +123,7 @@ class Sample(object):
         db['sample'].ensure_index([('container_id', -1)], unique=True)
         db['sample'].ensure_index([('sample_name', -1)], unique=True)
         db['sample'].ensure_index([('owner_group', -1)])
+        db['sample'].ensure_index([('sample_position', -1)], unique=True)
         return _id
 
 
