@@ -2,7 +2,7 @@ __author__ = 'arkilic'
 
 from sampleManager.database.collection_definition import Container, Request, Sample
 from sampleManager.session.databaseInit import db
-from sampleManager.session.databaseInit import metadataLogger
+from sampleManager.session.databaseInit import sampleManagerLogger
 import bson
 import pymongo
 
@@ -74,7 +74,7 @@ def find_container(container_query_dict):
             try:
                 container_cursor = db['container'].find(container_query_dict)
             except:
-                metadataLogger.logger.warning('Cannot establish connection to container collection')
+                sampleManagerLogger.logger.warning('Cannot establish connection to container collection')
                 raise
         else:
             raise ValueError('container_query_dict can not be empty')
@@ -119,8 +119,13 @@ def save_sample(sample_id, container_id, sample_name, owner_group, sample_group_
     :return: Returns _id for sample document
     :rtype: bson.ObjectId
     """
+    try:
+        __val_sample_pos(container_id=container_id, sample_position=sample_position)
+    except:
+        raise
     sample_obj = Sample(sample_id=sample_id, container_id=container_id, sample_name=sample_name,
-                        owner_group=owner_group, sample_group_name=sample_group_name, sample_position=sample_position)
+                        owner_group=owner_group, sample_group_name=sample_group_name,
+                        sample_position=sample_position)
     try:
         native_sample_id = sample_obj.save(wtimeout=100, write_concern={'w': 1})
     except:
@@ -166,7 +171,7 @@ def get_sample_mongo_id(sample_name):
     return result
 
 
-def save_request(sample_id, request_dict, request_id):
+def save_request(sample_id, request_id, request_type=None,request_dict=dict()):
     """
     :param sample_id: foreignkey pointing at a specific sample's _id field
     :type sample_id: bson.ObjectId
@@ -174,10 +179,13 @@ def save_request(sample_id, request_dict, request_id):
     :param request_dict: custom field to be filled by ABBIX collection environment
     :type request_dict: dict
 
+    :param request_type: provides information regarding nature of request
+    :type request_type: str
+
     :return: None
     :rtype: None
     """
-    request_obj = Request(sample_id, request_id, request_dict)
+    request_obj = Request(sample_id, request_id, request_dict, request_type)
     try:
         req_id = request_obj.save(wtimeout=100, write_concern={'w': 1})
     except:
@@ -261,3 +269,67 @@ def get_request_mongo_id(request_id):
     except IndexError:
         pass
     return result
+
+
+def __val_sample_pos(container_id, sample_position):
+    container_query_dict = dict()
+    status = False
+    container_query_dict['_id'] = container_id
+    try:
+        cont_cursor = find_container(container_query_dict=container_query_dict)
+    except:
+        sampleManagerLogger.logger.warning('Container cursor could not be parsed')
+        raise
+    capacity = cont_cursor[0]['capacity']
+    print 'capacity of the container is ', capacity
+    print 'sample_position is ', sample_position
+    sample_query_dict = dict()
+    sample_query_dict['container_id'] = bson.ObjectId(container_id)
+    samples = find_sample(sample_query_dict=sample_query_dict)
+    print 'capacity of the container is ', capacity
+    print 'given sample position is ', sample_position
+    if sample_position > capacity:
+            status = False
+            raise ValueError('Sample position cannot be larger than the container capacity')
+    else:
+        for sample in samples:
+            print sample_position, sample['sample_position']
+            if sample_position == sample['sample_position']: #or (sample_position > capacity):
+                status = False
+                raise ValueError('Two samples cannot be on the same spot')
+                break
+            else:
+                status = True
+    return status
+
+
+def validate_sample_position(container_name, sample_position ):
+    #TODO: implement a private version of this that takes container_id as input for create_sample's use!!!!!
+    container_query_dict = dict()
+    container_query_dict['container_name'] = container_name
+    try:
+        cont_cursor = find_container(container_query_dict=container_query_dict)
+    except:
+        sampleManagerLogger.logger.warning('Container cursor could not be parsed')
+        raise
+    container_dict = decode_container_cursor(cont_cursor)
+    container = container_dict[container_name]
+    print container
+    capacity = container['capacity']
+    container_id = container['_id']
+    sample_query_dict = dict()
+    # sample_query_dict['container_id'] = bson.ObjectId(container_id)
+    sample_query_dict['container_id'] = container_id
+    samples = find_sample(sample_query_dict=sample_query_dict)
+    for sample in samples:
+        print sample_position, sample['sample_position']
+        if sample_position > capacity:
+            raise ValueError('Sample position cannot be larger than the container capacity')
+            break
+        if sample_position == sample['sample_position']: #or (sample_position > capacity):
+            raise ValueError('Sample Position is invalid')
+            break
+
+    validate_flag = True
+    return validate_flag
+

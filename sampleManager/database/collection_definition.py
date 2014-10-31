@@ -37,6 +37,13 @@ class Container(object):
         self.capacity = validate_int(capacity)
 
     def __compose_document(self):
+        """
+        pymongo document entry composer. Given fields within a class, returns a python dictionary to be converted to
+        bson object by pymongo
+
+        :return: Container document dictionary
+        :rtype: dict
+        """
         document_template = dict()
         document_template['container_id'] = self.container_id
         document_template['container_name'] = self.container_name
@@ -101,6 +108,14 @@ class Sample(object):
         self.sample_position = validate_int(sample_position)
 
     def __compose_document(self):
+        """
+        pymongo document entry composer. Given fields within a class, returns a python dictionary to be converted to
+        bson object by pymongo
+
+        :return: sample document dictionary
+        :rtype: dict
+        """
+
         document_template = dict()
         document_template['sample_id'] = self.sample_id
         document_template['sample_name'] = self.sample_name
@@ -123,17 +138,15 @@ class Sample(object):
         composed_dict = self.__compose_document()
         _id = db['sample'].insert(composed_dict, **kwargs)
         db['sample'].ensure_index([('sample_id', -1)], unique=True)
-        db['sample'].ensure_index([('container_id', -1)], unique=True)
+        db['sample'].ensure_index([('container_id', -1)])
         db['sample'].ensure_index([('sample_name', -1)], unique=True)
         db['sample'].ensure_index([('owner_group', -1)])
-        db['sample'].ensure_index([('sample_position', -1)], unique=True)
+        db['sample'].ensure_index([('sample_position', -1)])
         return _id
 
 
 class Request(object):
-    #TODO: Find out which one of these fields are unique
-    #TODO: Find out what the fields of Request document are
-    def __init__(self, sample_id, request_id, request_dict):
+    def __init__(self, sample_id, request_id, request_dict, request_type):
         """
 
         :param sample_id: foreginkey pointing at a specific sample's _id field
@@ -142,18 +155,30 @@ class Request(object):
         :param request_dict: custom field to be filled by ABBOX collection environment
         :type request_dict: dict
 
+        :param request_type: provides information regarding nature of request
+        :type request_type: str
+
         :return: None
         :rtype: None
         """
         self.sample_id = sample_id
         self.request_dict = request_dict
         self.request_id = request_id
+        self.request_type = request_type
 
     def __compose_document(self):
+        """
+        pymongo document entry composer. Given fields within a class, returns a python dictionary to be converted to
+        bson object by pymongo
+
+        :return: Request document dictionary
+        :rtype: dict
+        """
         document_template = dict()
         document_template['sample_id'] = self.sample_id
         document_template['request_dict'] = self.request_dict
         document_template['request_id'] = self.request_id
+        document_template['request_type'] = self.request_type
         return document_template
 
     def save(self, **kwargs):
@@ -169,5 +194,6 @@ class Request(object):
         _id = db['request'].insert(composed_dict, **kwargs)
         db['request'].ensure_index([('sample_id', -1)], unique=True)
         db['request'].ensure_index([('request_id', -1)], unique=True)
+        db['request'].ensure_index([('request_type', -1)])
         db['request'].ensure_index([('request_dict', -1)])
         return _id
