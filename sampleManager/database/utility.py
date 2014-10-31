@@ -38,13 +38,9 @@ def validate_int(entry):
 
 
 def validate_bson_obj(some_object):
+    if some_object is None:
+        return None
     if isinstance(some_object, ObjectId):
         pass
     else:
-        raise TypeError('')
-    
-
-def validate_container_ref_ids(container_ref_id):
-    validate_list(container_ref_id)
-    for entry in container_ref_id:
-        validate_bson_obj(entry)
+        raise TypeError('Entry must be a bson.ObjectId')

@@ -9,7 +9,6 @@ def create_container(container_id, container_name, owner_group, contained_contai
 
 
 def add_sample(container_id, sample_id, sample_name, owner_group, sample_group_name, sample_position):
-    #TODO: Add mechanism to check whether there is another sample within the same container in that given position
     pass
 
 
@@ -26,6 +25,10 @@ def toggle_sample():
 
 
 def toggle_request_status():
+    pass
+
+
+def find():
     pass
 
 
