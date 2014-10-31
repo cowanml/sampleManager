@@ -12,6 +12,6 @@ setup(
               "sampleManager.dataapi",
               "sampleManager.database",
               "sampleManager.session",
-              "sampleManager.userapi",
-              ],
+              "sampleManager.userapi"
+              ]
     )
