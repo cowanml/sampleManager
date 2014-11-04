@@ -5,6 +5,7 @@ from sampleManager.session.databaseInit import db
 from sampleManager.session.databaseInit import sampleManagerLogger
 import bson
 import pymongo
+from sampleManager.database.utility import validate_status
 
 
 def save_container(container_id, container_name, owner_group, capacity, container_ref_id=None, status='Active'):
@@ -319,7 +320,6 @@ def __val_sample_pos(container_id, sample_position):
 
 
 def validate_sample_position(container_name, sample_position ):
-    #TODO: implement a private version of this that takes container_id as input for create_sample's use!!!!!
     container_query_dict = dict()
     container_query_dict['container_name'] = container_name
     try:
@@ -346,5 +346,12 @@ def validate_sample_position(container_name, sample_position ):
     validate_flag = True
     return validate_flag
 
-def update_container_status(container_id):
-    pass
+
+def update_container_status(container_id, status):
+    validate_status(status)
+    container = db['container'].find_one({"container_id": container_id})
+    container['status'] = status
+    try:
+        db['container'].save(container)
+    except:
+        raise Exception('Container status cannot be updated')

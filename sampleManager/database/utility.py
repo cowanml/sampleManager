@@ -64,3 +64,14 @@ def validate_priority(entry):
             raise ValueError('Priority can be High or Low')
     else:
         raise TypeError('Priority must be a string[High/Low]')
+
+def validate_status(entry):
+    if isinstance(entry, str):
+        if entry == 'Active':
+            return entry
+        elif entry == 'Inactive':
+            return entry
+        else:
+            raise ValueError('Status can be Active or Inactive')
+    else:
+        raise TypeError('Status must be a string[Active/Inactive]')
