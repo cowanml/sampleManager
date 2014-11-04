@@ -1,14 +1,13 @@
 __author__ = 'arkilic'
 from sampleManager.session.databaseInit import db
-from sampleManager.database.utility import validate_bson_obj, validate_string, validate_int
+from sampleManager.database.utility import validate_bson_obj, validate_string, validate_int, validate_priority
 
 
 class Container(object):
-    """
-    Container instance
-    """
-    def __init__(self, container_id, container_name, owner_group, container_ref_id, capacity):
+    def __init__(self, container_id, container_name, owner_group, container_ref_id, capacity, status):
         """
+
+        Constructor for container class
 
         :param container_id: Unique identifier for a given container
         :type container_id: unspecified
@@ -22,6 +21,9 @@ class Container(object):
         :param capacity: Specifies the number of samples a container can hold
         :type capacity: int
 
+        :param status: Indicates whether container is in use or not
+        :type status: bool
+
         :return: Container instance unique identifier
         :rtype: bson.ObjectId
 
@@ -31,6 +33,7 @@ class Container(object):
         self.container_name = validate_string(container_name)
         self.container_ref_id = validate_bson_obj(container_ref_id)
         self.capacity = validate_int(capacity)
+        self.status = validate_string(status)
 
     def __compose_document(self):
         """
@@ -46,6 +49,7 @@ class Container(object):
         document_template['owner_group'] = self.owner_group
         document_template['container_ref_id'] = self.container_ref_id
         document_template['capacity'] = self.capacity
+        document_template['status'] = self.status
 
         return document_template
 
@@ -69,7 +73,7 @@ class Sample(object):
         """
         Sample object constructor
 
-        :param sample_id: Unique identifier specific to a sample set by ABBIX collection script
+        :param sample_id: Unique identifier specific to a sample set by data collection script
         :type sample_id: int
 
         :param container_id: foreignkey pointing to container a sample belongs to
@@ -89,7 +93,6 @@ class Sample(object):
 
         :param sample_position: Denotes the location of which sample is placed within a container
         :type sample_position: int
-
 
         :return: None
         :rtype: None
@@ -140,17 +143,20 @@ class Sample(object):
 
 
 class Request(object):
-    def __init__(self, sample_id, request_id, request_dict, request_type):
+    def __init__(self, sample_id, request_id, request_dict, request_type, priority):
         """
 
         :param sample_id: foreginkey pointing at a specific sample's _id field
         :type sample_id: bson.ObjectId
 
-        :param request_dict: custom field to be filled by ABBOX collection environment
+        :param request_dict: custom field to be filled by data collection environment
         :type request_dict: dict
 
         :param request_type: provides information regarding nature of request
         :type request_type: str
+
+        :param priority: indicates the priority of a given request
+        :type priority: str
 
         :return: None
         :rtype: None
@@ -159,6 +165,7 @@ class Request(object):
         self.request_dict = request_dict
         self.request_id = request_id
         self.request_type = request_type
+        self.priority = validate_priority(priority)
 
     def __compose_document(self):
         """
@@ -173,6 +180,7 @@ class Request(object):
         document_template['request_dict'] = self.request_dict
         document_template['request_id'] = self.request_id
         document_template['request_type'] = self.request_type
+        document_template['priority'] = self.priority
         return document_template
 
     def save(self, **kwargs):

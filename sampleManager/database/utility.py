@@ -39,8 +39,28 @@ def validate_int(entry):
 
 def validate_bson_obj(some_object):
     if some_object is None:
-        return None
-    if isinstance(some_object, ObjectId):
-        pass
+        res = None
+    elif isinstance(some_object, ObjectId):
+        return some_object
     else:
         raise TypeError('Entry must be a bson.ObjectId')
+
+
+
+def validate_bool(entry):
+    if isinstance(entry, bool):
+        res = entry
+    else:
+        raise TypeError('Entry must be a boolean')
+    return res
+
+def validate_priority(entry):
+    if isinstance(entry, str):
+        if entry == 'High':
+            return entry
+        elif entry == 'Low':
+            return entry
+        else:
+            raise ValueError('Priority can be High or Low')
+    else:
+        raise TypeError('Priority must be a string[High/Low]')

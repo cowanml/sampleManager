@@ -17,7 +17,7 @@ id = randint(0, 10000)
 
 cont_name = string_generator()
 
-save_container(container_id=id, container_name=cont_name, owner_group=0, capacity=5)
+save_container(container_id=id, container_name=cont_name, owner_group=0, capacity=5, status='Active')
 
 c_crsr = find_container({'container_id': id})
 
@@ -54,7 +54,7 @@ else:
 #Request Insert/Query Test
 r_id = randint(0, 1000)
 
-save_request(sample_id=samp_id, request_dict={'property1': 12.3, 'property_2': 'some_value1'}, request_id=r_id)
+save_request(sample_id=samp_id, request_dict={'property1': 12.3, 'property_2': 'some_value1'}, request_id=r_id, priority='High')
 r_crsr = find_request({'request_id': r_id})
 
 entry = decode_request_cursor(request_cursor=r_crsr)

@@ -47,35 +47,46 @@ container_keys = OrderedDict()
 container_keys['container_id'] = {'description': "The unique identifier for a container",
                                   'type': int,
                                   'validate_fun': _isinstance}
+
 container_keys['container_name'] = {'description': "The unique name for a container",
                                     'type': str,
                                     'validate_fun': _isinstance}
+
 container_keys['owner_group'] = {'description': 'Specifies the group container owner',
                                  'type': int,
                                  'validate_fun': _isinstance}
+
 container_keys['contained_container_id'] = {'description': 'Reference to containers encapsulated within ',
                                             'type': int,
                                             'validate_fun': _isinstance}
+
 sample_keys = OrderedDict()
+
 sample_keys['sample_id'] = {'description': 'The unique identifier for a sample',
                             'type': int,
                             'validate_fun': _isinstance}
+
 sample_keys['container_id'] = {'description': "The unique identifier for a container",
                                'type': int,
                                'validate_fun': _isinstance}
+
 sample_keys['sample_name'] = {'description': "The unique name of the sample",
                               'type': str,
                               'validate_fun': _isinstance}
+
 sample_keys['owner_group'] = {'description': 'Specifies the group container owner',
                               'type': int,
                               'validate_fun': _isinstance}
 request_keys = OrderedDict()
+
 request_keys['sample_id'] = {'description': 'The unique identifier for a sample',
                             'type': int,
                             'validate_fun': _isinstance}
+
 request_keys['request_id'] = {'description': "The unique identifier for a request",
                               'type': int,
                               'validate_fun': _isinstance}
+
 request_keys['request_dict'] = {'description': "Name-value container containing steps/tasks for the given request",
                                 'type': dict,
                                 'validate_fun': _isinstance}

@@ -7,7 +7,7 @@ import bson
 import pymongo
 
 
-def save_container(container_id, container_name, owner_group, capacity, container_ref_id=None):
+def save_container(container_id, container_name, owner_group, capacity, container_ref_id=None, status='Active'):
     """
     :param container_id: Unique identifier for a given container
     :type container_id: unspecified
@@ -25,7 +25,7 @@ def save_container(container_id, container_name, owner_group, capacity, containe
     :rtype: bson.ObjectId
     """
     container_obj = Container(container_id=container_id, container_name=container_name, owner_group=owner_group,
-                              container_ref_id=container_ref_id, capacity=capacity)
+                              container_ref_id=container_ref_id, capacity=capacity, status=status)
     try:
         cont_id = container_obj.save(wtimeout=100, write_concern={'w': 1})
     except:
@@ -148,6 +148,15 @@ def find_sample(sample_query_dict=dict()):
 
 
 def decode_sample_cursor(sample_cursor):
+    """
+    Given sample cursor instance, returns a dictionary
+
+    :param sample_cursor: Cursor object returned from queries to be decoded
+    :type sample_cursor: pymongo.cursor.Cursor object
+
+    :return: sample dictionary
+    :rtype: dict
+    """
     if isinstance(sample_cursor, pymongo.cursor.Cursor):
         samples = dict()
         for temp_dict in sample_cursor:
@@ -158,6 +167,15 @@ def decode_sample_cursor(sample_cursor):
 
 
 def get_sample_mongo_id(sample_name):
+    """
+    Returns unique mongodb _id given unique sample_name
+
+    :param sample_name: Collection/User defined name for the sample
+    :type sample_name: str
+
+    :return: Sample document mongodb _id
+    :rtype: bson.ObjectId
+    """
     sample_obj = find_sample({'sample_name': sample_name})
     try:
         result = sample_obj[0]['_id']
@@ -171,12 +189,14 @@ def get_sample_mongo_id(sample_name):
     return result
 
 
-def save_request(sample_id, request_id, request_type=None,request_dict=dict()):
+def save_request(sample_id, request_id, request_type=None, request_dict=dict(), priority='Low'):
     """
+    Creates a request entry and links it to samples provided
+
     :param sample_id: foreignkey pointing at a specific sample's _id field
     :type sample_id: bson.ObjectId
 
-    :param request_dict: custom field to be filled by ABBIX collection environment
+    :param request_dict: custom field to be filled by collection environment
     :type request_dict: dict
 
     :param request_type: provides information regarding nature of request
@@ -185,7 +205,7 @@ def save_request(sample_id, request_id, request_type=None,request_dict=dict()):
     :return: None
     :rtype: None
     """
-    request_obj = Request(sample_id, request_id, request_dict, request_type)
+    request_obj = Request(sample_id, request_id, request_dict, request_type, priority)
     try:
         req_id = request_obj.save(wtimeout=100, write_concern={'w': 1})
     except:
@@ -326,3 +346,5 @@ def validate_sample_position(container_name, sample_position ):
     validate_flag = True
     return validate_flag
 
+def update_container_status(container_id):
+    pass
