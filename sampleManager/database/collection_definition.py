@@ -101,7 +101,7 @@ class Sample(object):
         self.sample_id = sample_id
         self.container_id = container_id
         self.sample_name = validate_string(sample_name)
-        self.owner_group = validate_int(owner_group)
+        self.owner_group = validate_string(owner_group)
         self.sample_group_name = validate_string(sample_group_name)
         self.sample_position = validate_int(sample_position)
 

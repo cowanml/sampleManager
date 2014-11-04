@@ -23,15 +23,49 @@ def create_container(container_id, container_name, owner_group, capacity=10, con
     :return: None
     :rtype: None
     """
-
     try:
-        save_container(container_id=container_id, container_name=container_name, owner_group=owner_group,
+        res = save_container(container_id=container_id, container_name=container_name, owner_group=owner_group,
                        capacity=capacity, container_ref_id=contained_container_id, status=status)
     except:
         raise
+    return res
 
-def add_sample(container_id, sample_id, sample_name, owner_group, sample_group_name, sample_position):
-    pass
+
+def add_sample(container_id, sample_id, sample_name, owner_group, sample_group_name, sample_position=1):
+    """
+    Adds a sample to database within a given container
+
+    :param sample_id: Unique identifier specific to a sample set by collection script
+    :type sample_id: int
+
+    :param container_id: foreignkey pointing to container a sample belongs to
+    :type container_id: bson.ObjectId
+
+    :param collection_id: ???
+    :type collection_id: ???
+
+    :param sample_name: Text descriptor for sample
+    :type sample_name: str
+
+    :param owner_group: Denotes the group a specific owner belongs
+    :type owner_group: int
+
+    :param sample_group_name: provides information regarding the group sample falls under
+    :type sample_group_name: str
+
+    :param sample_position: Denotes the location of which sample is placed within a container
+    :type sample_position: int
+
+    :return: Returns _id for sample document
+    :rtype: bson.ObjectId
+    """
+    try:
+        res = save_sample(sample_id=sample_id, container_id=container_id, sample_name=sample_name, owner_group=owner_group,
+                    sample_group_name=sample_group_name, sample_position=sample_position)
+    except:
+        raise
+    return res
+
 
 
 def create_request(sample_id, request_dict, request_id):

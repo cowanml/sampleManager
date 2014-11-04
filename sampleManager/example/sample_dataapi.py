@@ -17,7 +17,7 @@ id = randint(0, 10000)
 
 cont_name = string_generator()
 
-save_container(container_id=id, container_name=cont_name, owner_group=0, capacity=5, status='Active')
+save_container(container_id=id, container_name=cont_name, owner_group='arkilic', capacity=5, status='Active')
 
 c_crsr = find_container({'container_id': id})
 
@@ -35,7 +35,7 @@ else:
 #Sample Insert/Query Test
 s_id = randint(0, 10000)
 samp_name = string_generator()
-save_sample(sample_id=s_id, container_id=cont_id, sample_name=samp_name, owner_group=0, sample_position=1,
+save_sample(sample_id=s_id, container_id=cont_id, sample_name=samp_name, owner_group='0', sample_position=1,
             sample_group_name='my_group')
 
 s_crsr = find_sample({'sample_id': s_id})
