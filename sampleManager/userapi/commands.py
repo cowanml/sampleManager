@@ -67,9 +67,29 @@ def add_sample(container_id, sample_id, sample_name, owner_group, sample_group_n
     return res
 
 
+def create_request(sample_id, request_id, request_dict={}, request_type=None, priority='Low'):
+    """
+    Creates a request entry and links it to samples provided
 
-def create_request(sample_id, request_dict, request_id):
-    pass
+    :param sample_id: foreignkey pointing at a specific sample's _id field
+    :type sample_id: bson.ObjectId
+
+    :param request_dict: custom field to be filled by collection environment
+    :type request_dict: dict
+
+    :param request_type: provides information regarding nature of request
+    :type request_type: str
+
+    :return: None
+    :rtype: None
+    """
+    try:
+        res = save_request(sample_id=sample_id, request_id=request_id, request_type=request_type,
+                           request_dict=request_dict, priority=priority)
+    except:
+        raise
+    return res
+
 
 
 def change_sample_container():

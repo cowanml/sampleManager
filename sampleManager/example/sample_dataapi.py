@@ -69,10 +69,10 @@ s_id = randint(0, 10000)
 
 cont_name = string_generator()
 
-c_id = save_container(container_id=id, container_name=cont_name, owner_group=0, container_ref_id=cont_id,capacity=12)
+c_id = save_container(container_id=id, container_name=cont_name, owner_group='0', container_ref_id=cont_id,capacity=12)
 
-save_sample(sample_id=s_id, container_id=c_id, sample_name=samp_name+'sf', owner_group=0, sample_position=12,
+save_sample(sample_id=s_id, container_id=c_id, sample_name=samp_name+'sf', owner_group='0', sample_position=12,
             sample_group_name='my_sample_group')
 
-save_sample(sample_id=s_id+1, container_id=c_id, sample_name=samp_name+'sf2', owner_group=0, sample_position=9,
+save_sample(sample_id=s_id+1, container_id=c_id, sample_name=samp_name+'sf2', owner_group='0', sample_position=9,
             sample_group_name='my_sample_group')
