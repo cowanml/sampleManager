@@ -4,7 +4,7 @@ from sampleManager.dataapi.commands import find_request, find_sample
 from collections import OrderedDict
 
 
-def create_container(container_id, container_name, owner_group, contained_container_id=None):
+def create_container(container_id, container_name, owner_group, capacity=10, contained_container_id=None, status='Active'):
     """
     Creates a container given information.
 
@@ -25,9 +25,8 @@ def create_container(container_id, container_name, owner_group, contained_contai
     """
 
     try:
-        save_container(container_id=container_id, container_name=container_name,
-                       owner_group=owner_group,contained_container_id=contained_container_id)
-
+        save_container(container_id=container_id, container_name=container_name, owner_group=owner_group,
+                       capacity=capacity, container_ref_id=contained_container_id, status=status)
     except:
         raise
 

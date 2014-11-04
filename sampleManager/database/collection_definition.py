@@ -1,4 +1,5 @@
 __author__ = 'arkilic'
+
 from sampleManager.session.databaseInit import db
 from sampleManager.database.utility import validate_bson_obj, validate_string, validate_int, validate_priority
 from sampleManager.database.utility import validate_status
@@ -16,7 +17,7 @@ class Container(object):
         :type container_name:str
 
         :param owner_group: Identifier for given owner
-        :type owner_group: int
+        :type owner_group: str
 
         :param capacity: Specifies the number of samples a container can hold
         :type capacity: int
@@ -29,7 +30,7 @@ class Container(object):
 
         """
         self.container_id = container_id
-        self.owner_group = validate_int(owner_group)
+        self.owner_group = validate_string(owner_group)
         self.container_name = validate_string(container_name)
         self.container_ref_id = validate_bson_obj(container_ref_id)
         self.capacity = validate_int(capacity)
