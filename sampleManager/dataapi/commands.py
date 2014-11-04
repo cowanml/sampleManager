@@ -293,6 +293,19 @@ def get_request_mongo_id(request_id):
 
 
 def __val_sample_pos(container_id, sample_position):
+    """
+    Validates a given sample's position within a container given container capacity and other samples
+    within the container
+
+    :param container_name: Unique string identifier for a container
+    :type container_name: str
+
+    :param sample_position: Position for a sample to be validated
+    :type sample_position: int
+
+    :return: Sample position flag [True for valid position]
+    :rtype: bool
+    """
     container_query_dict = dict()
     status = False
     container_query_dict['_id'] = container_id
@@ -319,35 +332,19 @@ def __val_sample_pos(container_id, sample_position):
     return status
 
 
-def validate_sample_position(container_name, sample_position ):
-    container_query_dict = dict()
-    container_query_dict['container_name'] = container_name
-    try:
-        cont_cursor = find_container(container_query_dict=container_query_dict)
-    except:
-        sampleManagerLogger.logger.warning('Container cursor could not be parsed')
-        raise
-    container_dict = decode_container_cursor(cont_cursor)
-    container = container_dict[container_name]
-    capacity = container['capacity']
-    container_id = container['_id']
-    sample_query_dict = dict()
-    # sample_query_dict['container_id'] = bson.ObjectId(container_id)
-    sample_query_dict['container_id'] = container_id
-    samples = find_sample(sample_query_dict=sample_query_dict)
-    for sample in samples:
-        if sample_position > capacity:
-            raise ValueError('Sample position cannot be larger than the container capacity')
-            break
-        if sample_position == sample['sample_position']: #or (sample_position > capacity):
-            raise ValueError('Sample Position is invalid')
-            break
-
-    validate_flag = True
-    return validate_flag
-
-
 def update_container_status(container_id, status):
+    """
+    Toggles the status of a container given user/collection defined container_id
+
+    :param container_id: user/collection defined container_id
+    :type container_id: str, int, bson.ObjectId
+
+    :param status: Active/Inactive
+    :type status: str
+
+    :return:None
+    :rtype: None
+    """
     validate_status(status)
     container = db['container'].find_one({"container_id": container_id})
     container['status'] = status

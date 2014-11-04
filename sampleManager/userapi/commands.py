@@ -5,8 +5,31 @@ from collections import OrderedDict
 
 
 def create_container(container_id, container_name, owner_group, contained_container_id=None):
-    pass
+    """
+    Creates a container given information.
 
+    :param container_id: User/Collection script defined unique identifier
+    :type container_id:int, str, bson.ObjectId
+
+    :param container_name: User/Collection script defined unique string
+     :type container_name: str
+
+    :param owner_group: Container owner information
+    :type owner_group: str
+
+    :param contained_container_id: Indicates within which container the container to be created is encapsulated
+    :type contained_container_id: bson.ObjectId
+
+    :return: None
+    :rtype: None
+    """
+
+    try:
+        save_container(container_id=container_id, container_name=container_name,
+                       owner_group=owner_group,contained_container_id=contained_container_id)
+
+    except:
+        raise
 
 def add_sample(container_id, sample_id, sample_name, owner_group, sample_group_name, sample_position):
     pass

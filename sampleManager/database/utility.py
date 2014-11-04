@@ -1,5 +1,4 @@
 __author__ = 'arkilic'
-import datetime
 from bson import ObjectId
 
 
