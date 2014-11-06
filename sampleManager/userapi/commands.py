@@ -2,6 +2,8 @@ __author__ = 'arkilic'
 from sampleManager.dataapi.commands import save_container, save_request, save_sample, find_container
 from sampleManager.dataapi.commands import find_request, find_sample
 from collections import OrderedDict
+from pymongo import errors
+from sampleManager.session.databaseInit import sampleManagerLogger
 
 
 def create_container(container_id, container_name, owner_group, capacity=10, contained_container_id=None, status='Active'):
@@ -63,13 +65,16 @@ def add_sample(container_id, sample_id, sample_name, owner_group, sample_group_n
         res = save_sample(sample_id=sample_id, container_id=container_id, sample_name=sample_name, owner_group=owner_group,
                     sample_group_name=sample_group_name, sample_position=sample_position)
     except:
-        raise
+        raise pymongo.error.
     return res
 
 
 def create_request(sample_id, request_id, request_dict={}, request_type=None, priority='Low'):
     """
     Creates a request entry and links it to samples provided
+
+    :param request_id: Unique identifier denoting a request
+    :type request_id:int, str, bson.ObjectId
 
     :param sample_id: foreignkey pointing at a specific sample's _id field
     :type sample_id: bson.ObjectId
@@ -84,23 +89,63 @@ def create_request(sample_id, request_id, request_dict={}, request_type=None, pr
     :rtype: None
     """
     try:
-        res = save_request(sample_id=sample_id, request_id=request_id, request_type=request_type,
-                           request_dict=request_dict, priority=priority)
+        req_id = save_request(sample_id=sample_id, request_id=request_id, request_type=request_type,
+                     request_dict=request_dict, priority=priority)
     except:
-        raise
-    return res
+        sampleManagerLogger.logger.warning('Request cannot be created')
+        raise errors.ConnectionFailure('Request cannot be created')
+    return req_id
 
 
+def change_sample_container(sample_name, container_id):
+    """
+    Moves sample from one container to another given sample_name and new container_id
 
-def change_sample_container():
+    :param sample_name: name of the sample to be moved to a different container
+    :type sample_name: str
+
+    :param container_id: User/Collection script defined unique identifier for the new container
+    :type container_id: int, str, bson.ObjectId
+
+    :return: None
+    """
+    #TODO: Check if sample exists
+    #TODO: Check if container exists
+    #TODO: Validate sample position given container
+    #TODO: Update sample position if above criteria satisfied
     pass
 
 
-def toggle_sample():
+def toggle_sample(sample_name, state):
+    """
+    Sets the state of the sample[Active/Inactive]
+
+    :param sample_name: name of the sample to be set/reset
+    :type sample_name: str
+
+    :param state: True is sample is Active and False if sample is Inactive
+    :type state: bool
+
+    :return: None
+    """
+    #TODO: Check if sample exists
+    #TODO: Check if the state is different than existing state
+    #TODO: If state is different, change the sample state
     pass
 
 
-def toggle_request_status():
+def change_request_priority(request_id, priority):
+    """
+    Changes the priority of a request. There are two priority levels: High/Low
+
+    :param request_id: id of the request that will be assigned a new priority.
+    :type request_id:
+
+    :param priority:
+    :return:
+    """
+
+
     pass
 
 

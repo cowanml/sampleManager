@@ -194,6 +194,9 @@ def save_request(sample_id, request_id, request_type=None, request_dict=dict(), 
     """
     Creates a request entry and links it to samples provided
 
+    :param request_id:
+    :type request_id:
+
     :param sample_id: foreignkey pointing at a specific sample's _id field
     :type sample_id: bson.ObjectId
 
