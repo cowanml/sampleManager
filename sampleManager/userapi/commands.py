@@ -65,7 +65,7 @@ def add_sample(container_id, sample_id, sample_name, owner_group, sample_group_n
         res = save_sample(sample_id=sample_id, container_id=container_id, sample_name=sample_name, owner_group=owner_group,
                     sample_group_name=sample_group_name, sample_position=sample_position)
     except:
-        raise pymongo.error.
+        raise pymongo.error
     return res
 
 
