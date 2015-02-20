@@ -14,7 +14,7 @@ def save_container(container_id, container_name, owner_group, capacity, containe
     :type container_id: unspecified
 
     :param container_name: Name for a given container
-    :type container_name:str
+    :type container_name: str
 
     :param owner_group: Identifier for given owner
     :type owner_group: int
