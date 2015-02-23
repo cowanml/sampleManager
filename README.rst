@@ -50,8 +50,7 @@ dev:  |tcidev| |cvrgdev| |qualdev| |docsdev|
 Installation
 ============
 
-Can't *pip* these yet :(
-
+Can't *pip* these yet :(::
 
     git clone https://github.com/NSLS-II/sampleManager.git
     cd sampleManager
