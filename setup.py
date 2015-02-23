@@ -1,17 +1,21 @@
 __author__ = 'arkilic'
 
+import glob
+from os.path import basename
+from os.path import splitext
+
 from distutils.core import setup
+from setuptools import find_packages
 
 setup(
     name='sampleManager',
     version='0.0.x',
     author='Arman Arkilic',
-    packages=["sampleManager",
-              "sampleManager.collectionapi",
-              "sampleManager.config",
-              "sampleManager.dataapi",
-              "sampleManager.database",
-              "sampleManager.session",
-              "sampleManager.userapi",
-              ],
+    packages=find_packages("src"),
+    package_dir={"": "src"},
+    py_modules=[splitext(basename(i))[0] for i in glob.glob("src/*.py")],
+    install_requires=[
+        "pymongo",
+        #"mongoengine"
+    ],
     )
