@@ -5,6 +5,8 @@ sampleManager
 Sample Management Backend for NSLS2
 
 
+dev:  |tci| |cvrg| |qual| |docs|
+
 .. |tci| image:: https://travis-ci.org/cowanml/sampleManager.svg?branch=master
     :alt: Travis-CI Build Status - master
     :target: https://travis-ci.org/cowanml/sampleManager/branches
@@ -50,7 +52,7 @@ dev:  |tcidev| |cvrgdev| |qualdev| |docsdev|
 Installation
 ============
 
-Can't *pip* these yet :(::
+Can't *pip* these yet :(:
 
     git clone https://github.com/NSLS-II/sampleManager.git
     cd sampleManager
@@ -69,6 +71,10 @@ Development
 Use `gitflow <https://github.com/nvie/gitflow#readme>`_.
 
 
-To run all the tests run::
+To run tests::
 
-    tox
+    tox -e pep8
+    tox -e flake8
+    tox -e 2.7
+    ...
+
