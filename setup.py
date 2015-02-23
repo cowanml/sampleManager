@@ -11,6 +11,7 @@ setup(
     name='sampleManager',
     version='0.0.x',
     author='Arman Arkilic',
+    author_email=None,
     packages=find_packages("src"),
     package_dir={"": "src"},
     py_modules=[splitext(basename(i))[0] for i in glob.glob("src/*.py")],
