@@ -5,7 +5,7 @@ sampleManager
 Sample Management Backend for NSLS2
 
 
-dev:  |tci| |cvrg| |qual| |docs|
+master:  |tci| |cvrg| |qual| |docs|
 
 .. |tci| image:: https://travis-ci.org/cowanml/sampleManager.svg?branch=master
     :alt: Travis-CI Build Status - master
