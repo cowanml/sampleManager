@@ -1,13 +1,14 @@
 #sphinx
 #sphinxcontrib-napoleon
-#sphinx-py3doc-enhanced-theme
-pytest-dbfixtures
-importlib
+#sphinx_py3doc_enhanced_theme
+#pytest-dbfixtures
+#importlib
 pymongo
 numpy
 #mongoengine
 -e .
 
+# for pytest-dbfixtures
 # note!  had to do small hack to mirakuru :( to get 'tox -e 2.6' to work locally
 # need to redo if the virtualenv gets rebuilt
 # diff /h/cowan/projects/john_proto_dev.notes/sampleMangler/.tox/2.6/lib/python2.6/site-packages/mirakuru/compat.py{~,}                                      
