@@ -3,6 +3,7 @@
 #sphinx_py3doc_enhanced_theme
 #pytest-dbfixtures
 #importlib
+ConfigParser
 pymongo
 numpy
 #mongoengine
