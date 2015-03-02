@@ -1,7 +1,13 @@
 __author__ = 'arkilic'
 
 import os.path
-import ConfigParser
+
+try:
+    import ConfigParser
+except ImportError:
+    # for python 3
+    import configparser
+
 from os import path
 
 
