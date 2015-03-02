@@ -1,7 +1,12 @@
 __author__ = 'arkilic'
 from sampleManager.dataapi.commands import save_container, save_request, save_sample, find_container
 from sampleManager.dataapi.commands import find_request, find_sample
+
 from collections import OrderedDict
+except ImportError:
+    # for < 2.7
+    from ordereddict import OrderedDict
+
 from pymongo import errors
 from sampleManager.session.databaseInit import sampleManagerLogger
 
