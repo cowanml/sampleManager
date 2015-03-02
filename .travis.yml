@@ -1,6 +1,9 @@
 language: python
 python: 2.7
 
+# use lightweight "container" vms on travis... faster!
+sudo: false
+
 services:
   - mongodb
 
@@ -10,15 +13,19 @@ env:
   matrix:
     - TOXENV=check
     - TOXENV=2.6,coveralls
-    - TOXENV=2.6-nocover
     - TOXENV=2.7,coveralls
-    - TOXENV=2.7-nocover
     - TOXENV=3.3,coveralls
-    - TOXENV=3.3-nocover
     - TOXENV=3.4,coveralls
-    - TOXENV=3.4-nocover
+    - TOXENV=nocover-2.6
+    - TOXENV=nocover-2.7
+    - TOXENV=nocover-3.3
+    - TOXENV=nocover-3.4
+    - TOXENV=nocover-pypy
     - TOXENV=pypy,coveralls
-    - TOXENV=pypy-nocover
+    allow_failures:
+      - env:  TOXENV=pypy,coveralls
+      - env:  TOXENV=nocover-pypy
+    fast_finish:  true
 
 before_install:
   - python --version

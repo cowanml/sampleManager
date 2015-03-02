@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 import os
 import sys
+
+#try:
+#    from collections import OrderedDict
+#except ImportError:
+#    # for < 2.7
+#    from ordereddict import OrderedDict
+
 if not os.path.exists('.tox/configure'):
     import virtualenv
     import subprocess
@@ -31,7 +38,9 @@ jinja = jinja2.Environment(
     lstrip_blocks=True,
     keep_trailing_newline=True
 )
+
 tox_environments = {}
+
 for alias, conf in matrix.from_file('setup.cfg').items():
     python = conf['python_versions']
     deps = conf['dependencies']
@@ -44,6 +53,13 @@ for alias, conf in matrix.from_file('setup.cfg').items():
         'cover': cover,
         'env_vars': env_vars.split(),
     }
+    # attempt to stop flopping of pypy-nocover, nocover-pypy
+    # screws up coverage, nocover still gets coveralls...?
+#    tox_environments[alias] = OrderedDict()
+#    tox_environments[alias]['python'] = 'python' + python if 'py' not in python else python,
+#    tox_environments[alias]['deps'] = deps.split(),
+#    tox_environments[alias]['cover'] = cover,
+#    tox_environments[alias]['env_vars'] = env_vars.split(),
 
 for name in os.listdir('conf'):
     with open(name, 'w') as fh:

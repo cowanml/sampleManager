@@ -1,6 +1,9 @@
 language: python
 python: 2.7
 
+# use lightweight "container" vms on travis... faster!
+sudo: false
+
 services:
   - mongodb
 
@@ -13,6 +16,10 @@ env:
     - TOXENV={{ env }}{% if config.cover %},coveralls{% endif %}
 
 {% endfor %}
+    allow_failures:
+      - env:  TOXENV=pypy,coveralls
+      - env:  TOXENV=nocover-pypy
+    fast_finish:  true
 
 before_install:
   - python --version

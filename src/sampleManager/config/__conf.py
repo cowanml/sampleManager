@@ -6,7 +6,7 @@ try:
     import ConfigParser
 except ImportError:
     # for python 3
-    import configparser
+    import configparser as ConfigParser
 
 from os import path
 
