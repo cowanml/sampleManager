@@ -3,7 +3,8 @@
 #sphinx_py3doc_enhanced_theme
 #pytest-dbfixtures
 #importlib
-ConfigParser
+# mv ordereddict to tox.. py vers dep
+#OrderedDict
 pymongo
 numpy
 #mongoengine
