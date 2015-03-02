@@ -16,10 +16,12 @@ env:
     - TOXENV={{ env }}{% if config.cover %},coveralls{% endif %}
 
 {% endfor %}
-    allow_failures:
-      - env:  TOXENV=pypy,coveralls
-      - env:  TOXENV=nocover-pypy
-    fast_finish:  true
+
+matrix:
+  allow_failures:
+    - env:  TOXENV=pypy,coveralls
+    - env:  TOXENV=nocover-pypy
+  fast_finish:  true
 
 before_install:
   - python --version
