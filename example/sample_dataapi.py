@@ -28,8 +28,8 @@ entry = decode_container_cursor(c_crsr)
 cont_id = get_container_mongo_id(container_name=cont_name)
 
 if cont_id == entry[cont_name]['_id']:
-    print 'save_container() test passed'
-    print 'get_container_id() test passed'
+    print('save_container() test passed')
+    print('get_container_id() test passed')
 else:
     raise Exception('get_container_id test failed')
 
@@ -47,8 +47,8 @@ entry = decode_sample_cursor(sample_cursor=s_crsr)
 samp_id = get_sample_mongo_id(sample_name=samp_name)
 
 if samp_id == entry[samp_name]['_id']:
-    print 'save_sample() test passed'
-    print 'get_sample_mongo_id() test passed'
+    print('save_sample() test passed')
+    print('get_sample_mongo_id() test passed')
 else:
     raise Exception('get_sample_mongo_id test failed')
 
