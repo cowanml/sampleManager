@@ -20,7 +20,7 @@ master_doc = 'index'
 project = u'sampleManager'
 copyright = u'2014, Brookhaven National Lab'
 version = release = re.findall(
-    'version="(.*)"',
+    '\n[^#]*version=["\'](.*)["\']',
     open(os.path.join(os.path.dirname(__file__), '../setup.py')).read()
 )[0]
 
