@@ -1,4 +1,8 @@
+
+from __future__ import print_function
+
 __author__ = 'arkilic'
+
 
 from sampleManager.dataapi.commands import save_container, find_container, decode_container_cursor, get_container_mongo_id
 from random import randint
@@ -7,8 +11,6 @@ from sampleManager.dataapi.commands import save_request, find_request, decode_re
     get_request_mongo_id, save_multiple_containers
 import random
 import string
-
-from __future__ import print_function
 
 
 def string_generator(size=6, chars=string.ascii_uppercase + string.digits):
