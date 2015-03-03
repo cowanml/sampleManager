@@ -12,7 +12,7 @@ master:  |tci| |cvrg| |qual| |docs|
     :target: https://travis-ci.org/cowanml/sampleManager/branches
 
 
-.. |cvrg| image:: https://coveralls.io/repos/cowanml/sampleManager/badge.png?branch=master
+.. |cvrg| image:: https://coveralls.io/repos/cowanml/sampleManager/badge.svg?branch=master
     :alt: Coverage Status
     :target: https://coveralls.io/r/cowanml/sampleManager?branch=master
 
@@ -34,7 +34,7 @@ dev:  |tcidev| |cvrgdev| |qualdev| |docsdev|
     :target: https://travis-ci.org/cowanml/sampleManager/branches
 
 
-.. |cvrgdev| image:: https://coveralls.io/repos/cowanml/sampleManager/badge.png?branch=dev
+.. |cvrgdev| image:: https://coveralls.io/repos/cowanml/sampleManager/badge.svg?branch=dev
     :alt: Coverage Status
     :target: https://coveralls.io/r/cowanml/sampleManager?branch=dev
 
