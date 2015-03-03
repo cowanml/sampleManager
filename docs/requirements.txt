@@ -1,6 +1,8 @@
+# readthedocs needs these here? :(
+# seems like we shouldn't need numpy to build docs?
+# this seems nonoptimal
 #sphinx
-#sphinxcontrib-napoleon
-# readthedocs needs this here?
+sphinxcontrib-napoleon
 sphinx_py3doc_enhanced_theme
 #pytest-dbfixtures
 #importlib
