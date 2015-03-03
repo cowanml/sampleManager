@@ -1,6 +1,7 @@
 #sphinx
 #sphinxcontrib-napoleon
-#sphinx_py3doc_enhanced_theme
+# readthedocs needs this here?
+sphinx_py3doc_enhanced_theme
 #pytest-dbfixtures
 #importlib
 # mv ordereddict to tox.. py vers dep
