@@ -12,7 +12,6 @@ env:
     LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
   matrix:
     - TOXENV=check
-    - TOXENV=flake8
     - TOXENV=2.6,coveralls
 #    - TOXENV=2.6-nocover
     - TOXENV=2.7,coveralls
@@ -28,7 +27,6 @@ env:
 # to avoid flipflopping the order :(
 matrix:
   allow_failures:
-    - env:  TOXENV=flake8
     - env:  TOXENV=pypy,coveralls
     - env:  TOXENV=nocover-pypy
     - env:  TOXENV=coveralls,pypy
