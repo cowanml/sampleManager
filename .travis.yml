@@ -23,10 +23,14 @@ env:
     - TOXENV=pypy,coveralls
     - TOXENV=pypy-nocover
 
+# need to make matrix generator in bootstrap.py used ordereddict or something
+# to avoid flipflopping the order :(
 matrix:
   allow_failures:
     - env:  TOXENV=pypy,coveralls
     - env:  TOXENV=nocover-pypy
+    - env:  TOXENV=coveralls,pypy
+    - env:  TOXENV=pypy-nocover
   fast_finish:  true
 
 before_install:
