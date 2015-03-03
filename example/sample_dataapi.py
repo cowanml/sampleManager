@@ -8,6 +8,8 @@ from sampleManager.dataapi.commands import save_request, find_request, decode_re
 import random
 import string
 
+from __future__ import print_function
+
 
 def string_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
