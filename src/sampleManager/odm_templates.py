@@ -11,6 +11,15 @@ from getpass import getuser
 
 # how to enforce multi"column" unique constraints?
 
+# valid sample/container/request types per beamline stored in beamlineconfig?
+
+
+
+### !!! continue here... discuss schema from "my_thoughts".gdoc with
+###     the team and implement!
+
+
+
 class Sample(DynamicDocument):
     uid = StringField(required=True, unique=True)
     owner = StringField(default=getuser(), required=True, unique=False)
