@@ -1,17 +1,26 @@
 # readthedocs needs these here? :(
 # seems like we shouldn't need numpy to build docs?
-# this seems nonoptimal
+# or doc crap when not building docs...
+# seems nonoptimal
 #sphinx
 sphinxcontrib-napoleon
 sphinx_py3doc_enhanced_theme
+
 #pytest-dbfixtures
 #importlib
+
 # mv ordereddict to tox.. py vers dep
 #OrderedDict
-pymongo
+
+#numpy + pypy isnt happy in travis :(
 numpy
-#mongoengine
+
+#pymongo
+mongoengine
+
+-e https://github.com/NSLS-II/metadatastore.git#egg=metadatastore
 -e .
+
 
 # for pytest-dbfixtures
 # note!  had to do small hack to mirakuru :( to get 'tox -e 2.6' to work locally
