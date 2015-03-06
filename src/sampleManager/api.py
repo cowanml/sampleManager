@@ -21,7 +21,11 @@ from .commands import (toggle_sample, update_container_status)
 # or generic update could provide for rename?
 # delete_[obj[s]]
 
+# a must!
 # get_{types,classes}
+# get_{type,class}
+# create_{type,class}
+
 # get_all
 # get_by_{id,type}
 # get_special_by_name (getPrimaryDewar)
