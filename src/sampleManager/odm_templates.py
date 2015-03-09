@@ -1,3 +1,6 @@
+"""
+ODM templates for use with samplemanager
+"""
 from mongoengine import Document, DynamicDocument, DynamicEmbeddedDocument
 from mongoengine import (StringField, DictField, IntField, FloatField,
                          ListField, ReferenceField, EmbeddedDocumentField,
@@ -10,14 +13,8 @@ from getpass import getuser
 #   created, last_modified, modified_by{name,ip} ?
 #   location/time ?
 
-# how to enforce multi "column" unique constraints?
-
 # valid sample/container/request types per beamline stored in beamlineconfig?
 
-
-
-### !!! continue here... discuss schema from "my_thoughts".gdoc with
-###     the team and implement!
 
 
 # Only omnipresent, required, not null fields in top level.
@@ -38,6 +35,9 @@ from getpass import getuser
 # hrm... this kinda degenerated.  why have 3 collections?
 
 
+
+
+# SampleManagerDynamicDocument
 class SMDynDoc(DynamicDocument):
     """
     Parent class for SampleManager dynamic documents.
@@ -72,10 +72,12 @@ class SMDynDoc(DynamicDocument):
 
     uid = StringField(required=True, unique=True)
     owner = StringField(required=True, unique=False)
+
     # maybe type should be a ReferenceField?
     # genericref takes a performance hit?
     # what about genericembeddeddoc?
     type = StringField(required=True, unique=False)
+
     properties = GenericEmbeddedDocumentField(required=False, unique=False)
 
     meta = {'allow_inheritance': True}  # or is {'abstract': True} better?
@@ -115,10 +117,12 @@ class Sample(SMDynDoc):
         uses_coldstream:  boolean
     """
 
+    
+
     meta = {'collection': 'sample'}
 
 
-class Container(DynamicDocument):
+class Container(SMDynDoc):
     """
     Describes a sample carrier:  dewar, puck, plate, etc. etc.
 
@@ -155,7 +159,7 @@ class Container(DynamicDocument):
     meta = {'collection': 'container'}
 
 
-class Request(DynamicDocument):
+class Request(SMDynDock):
     """
     Holds requested measurements, request type info, to enable proper
     automation and a sample_uid for the sample to measure.
