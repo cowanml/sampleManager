@@ -37,6 +37,26 @@ from getpass import getuser
 
 
 
+class TypeKey(DynamicEmbeddedDocument):
+    """
+    """
+
+    dtype = StringField(required=True,
+                        choices=('integer', 'number', 'array',
+                                 'boolean', 'string'))
+    validator = StringField()
+    default = StringField()
+
+
+class InstanceKey(DynamicEmbeddedDocument):
+    """
+    """
+
+    value = DynamicField(required=True)
+    source = StringField(required=True)
+    time = FloatField(required=True)
+
+
 # SampleManagerDynamicDocument
 class SMDynDoc(DynamicDocument):
     """
@@ -68,58 +88,25 @@ class SMDynDoc(DynamicDocument):
             Delegated privs matching PASS2.
             Do we need a more flexible role+priv system?
         status:  str, enumerated set of possible values
+
+    properties format:  nested dictionary
+    for *_type:
+        {propname:  {dtype: [dtype], validator: [validation_func], default: [default]}
+         ...: {}}
+    for an instance of that type:
+        {propname: {value: [value], source: [source], timestamp: [timestamp]}
+         ...: {}}
     """
 
     uid = StringField(required=True, unique=True)
-    owner = StringField(required=True, unique=False)
+    owner = StringField(required=True)
 
-    # maybe type should be a ReferenceField?
-    # genericref takes a performance hit?
-    # what about genericembeddeddoc?
-    type = StringField(required=True, unique=False)
+    # does genericref take a performance hit?
+    type = GenericReferenceField(required=True)
 
-    properties = GenericEmbeddedDocumentField(required=False, unique=False)
+    properties = DictField(required=True)
 
     meta = {'allow_inheritance': True}  # or is {'abstract': True} better?
-
-
-class Sample(SMDynDoc):
-#class Sample(DynamicDocument):
-    """
-    Holds user supplied info for samples, sample type info, to
-    enable proper automated handling (pin, plate_well, capillary, ade, ...),
-    and a container_uid for the container currently containing the sample.
-
-    Attributes
-    ----------
-    uid, owner, type, and properties inherited from SMDynDoc
-
-    properties examples:
-        see common examples in SMDynDoc
-
-        identifer:  str, unique with owner
-            Short, no spaces, user supplied name/id/barcode, optional?
-        name:  str, unique with owner
-            Longer, user supplied name, optional?
-
-        container_uid:  str, referencefield?
-            What container the sample is in.
-        position:  str or ?, unique with container_uid
-            Discrete, addressable location within the container
-
-        sample_group_uid:  str or id?  referencefield?
-            Linking identifier for multisample measurements.
-            eg. measuring overall completeness with many tiny crystals
-
-    example sample_type properties:
-        robot_compatible:  boolean
-        gripper_required, robot_procedure, restrictions...
-        uses_coldstream:  boolean
-    """
-
-    
-
-    meta = {'collection': 'sample'}
 
 
 class Container(SMDynDoc):
@@ -157,6 +144,100 @@ class Container(SMDynDoc):
     """
 
     meta = {'collection': 'container'}
+
+
+class SampleKeys(DynamicEmbeddedDocument):
+    """
+    Required property definitions for sample types.
+
+    properties examples:
+        see common examples in SMDynDoc
+
+        identifer:  str, unique with owner
+            Short, no spaces, user supplied name/id/barcode, optional?
+        name:  str, unique with owner
+            Longer, user supplied name, optional?
+
+        container:  str, referencefield?
+            What container the sample is in.
+        position:  str or ?, unique with container_uid
+            Discrete, addressable location within the container
+
+        sample_group:  referencefield?
+            Linking identifier for multisample measurements.
+            eg. measuring overall completeness with many tiny crystals
+
+    example sample_type properties:
+        robot_compatible:  boolean
+        gripper_required, robot_procedure, restrictions...
+        uses_coldstream:  boolean
+    """
+
+    #identifier = StringField(required=True)
+    name = StringField(required=True)
+
+    #container = ReferenceField(Container, db_field='container_id')
+    #position = StringField(required=True)
+    # need a way to specify validation for position...
+ 
+    # hrm... maybe a better way to do this?
+    #sample_group = ReferenceField(Sample, db_field='sample_id', required=False)
+    
+
+class SMType(SMDynDoc):
+    """
+    Holds user supplied info for samples, sample type info, to
+    enable proper automated handling (pin, plate_well, capillary, ade, ...),
+    and a container_uid for the container currently containing the sample.
+
+    Attributes
+    ----------
+    uid, owner, type, and properties inherited from SMDynDoc
+
+    name : str
+        The name of the sample type.
+    """
+
+    name = StringField(required=True)
+    properties = MapField(EmbeddedDocumentField(TypeKey), required=True)
+
+    meta = {'collection': 'types'}
+
+
+class Sample(SMDynDoc):
+    """
+    Holds user supplied info for samples, sample type info, to
+    enable proper automated handling (pin, plate_well, capillary, ade, ...),
+    and a container_uid for the container currently containing the sample.
+
+    Attributes
+    ----------
+    uid, owner, type, and properties inherited from SMDynDoc
+
+    properties examples:
+        see common examples in SMDynDoc
+
+        identifer:  str, unique with owner
+            Short, no spaces, user supplied name/id/barcode, optional?
+        name:  str, unique with owner
+            Longer, user supplied name, optional?
+
+        container_uid:  str, referencefield?
+            What container the sample is in.
+        position:  str or ?, unique with container_uid
+            Discrete, addressable location within the container
+
+        sample_group_uid:  str or id?  referencefield?
+            Linking identifier for multisample measurements.
+            eg. measuring overall completeness with many tiny crystals
+
+    example sample_type properties:
+        robot_compatible:  boolean
+        gripper_required, robot_procedure, restrictions...
+        uses_coldstream:  boolean
+    """
+
+    meta = {'collection': 'sample'}
 
 
 class Request(SMDynDock):
