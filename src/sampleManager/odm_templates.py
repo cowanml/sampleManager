@@ -35,10 +35,18 @@ from getpass import getuser
 # hrm... this kinda degenerated.  why have 3 collections?
 
 
+# properties format:  nested dictionary
+# for *_type:
+#     {propname:  {dtype: [dtype], validator: [validation_func], default: [default]}
+#      ...: {}}
+# for an instance of that type:
+#     {propname: {value: [value], source: [source], timestamp: [timestamp]}
+#      ...: {}}
 
 
 class TypeKey(DynamicEmbeddedDocument):
     """
+    Describe embedded doc for SMType properties
     """
 
     dtype = StringField(required=True,
@@ -50,10 +58,17 @@ class TypeKey(DynamicEmbeddedDocument):
 
 class InstanceKey(DynamicEmbeddedDocument):
     """
+    Describe embedded doc for SM{Sample,SampleGroup,Container,Request} properties
     """
 
     value = DynamicField(required=True)
+
+    # limit choices?  choices=('pass2',
+    #   			'{staff,user}_entered_{cli,gui,web}',
+    #                           '{staff,user}_imported',  # spreadsheet upload to web
+    #                           'default')
     source = StringField(required=True)
+
     time = FloatField(required=True)
 
 
@@ -88,14 +103,6 @@ class SMDynDoc(DynamicDocument):
             Delegated privs matching PASS2.
             Do we need a more flexible role+priv system?
         status:  str, enumerated set of possible values
-
-    properties format:  nested dictionary
-    for *_type:
-        {propname:  {dtype: [dtype], validator: [validation_func], default: [default]}
-         ...: {}}
-    for an instance of that type:
-        {propname: {value: [value], source: [source], timestamp: [timestamp]}
-         ...: {}}
     """
 
     uid = StringField(required=True, unique=True)
@@ -104,9 +111,68 @@ class SMDynDoc(DynamicDocument):
     # does genericref take a performance hit?
     type = GenericReferenceField(required=True)
 
-    properties = DictField(required=True)
+    #properties = DictField(required=True)
+    properties = MapField(EmbeddedDocumentField(InstanceKey), required=True)
 
     meta = {'allow_inheritance': True}  # or is {'abstract': True} better?
+
+
+#class SampleKeys(DynamicEmbeddedDocument):
+#    """
+#    Required property definitions for sample types.
+#
+#    properties examples:
+#        see common examples in SMDynDoc
+#
+#        identifer:  str, unique with owner
+#            Short, no spaces, user supplied name/id/barcode, optional?
+#        name:  str, unique with owner
+#            Longer, user supplied name, optional?
+#
+#        container:  str, referencefield?
+#            What container the sample is in.
+#        position:  str or ?, unique with container_uid
+#            Discrete, addressable location within the container
+#
+#        sample_group:  referencefield?
+#            Linking identifier for multisample measurements.
+#            eg. measuring overall completeness with many tiny crystals
+#
+#    example sample_type properties:
+#        robot_compatible:  boolean
+#        gripper_required, robot_procedure, restrictions...
+#        uses_coldstream:  boolean
+#    """
+#
+#    #identifier = StringField(required=True)
+#    name = StringField(required=True)
+#
+#    #container = ReferenceField(Container, db_field='container_id')
+#    #position = StringField(required=True)
+#    # need a way to specify validation for position...
+# 
+#    # hrm... maybe a better way to do this?
+#    #sample_group = ReferenceField(Sample, db_field='sample_id', required=False)
+    
+
+class SMType(SMDynDoc):
+    """
+    Holds user supplied info for samples, sample type info, to
+    enable proper automated handling (pin, plate_well, capillary, ade, ...),
+    and a container_uid for the container currently containing the sample.
+
+    Attributes
+    ----------
+    uid, owner, type, and properties inherited from SMDynDoc
+
+    name : str
+        The name of the sample type.
+    """
+
+    name = StringField(required=True)
+    properties = MapField(EmbeddedDocumentField(TypeKey), required=True)
+
+    meta = {'collection': 'types'}
 
 
 class Container(SMDynDoc):
@@ -131,6 +197,9 @@ class Container(SMDynDoc):
             Discrete, addressable location within the container
 
         location:  str or id?
+
+        should have either a parent container_id or a location!
+        
         timestamp: 
             To keep track of the physical location history
 
@@ -143,65 +212,17 @@ class Container(SMDynDoc):
         gripper_required, robot_procedure, restrictions...
     """
 
+    identifier = StringField(required=True)
     meta = {'collection': 'container'}
 
 
-class SampleKeys(DynamicEmbeddedDocument):
+class SampleGroup(SMDynDoc):
     """
-    Required property definitions for sample types.
-
-    properties examples:
-        see common examples in SMDynDoc
-
-        identifer:  str, unique with owner
-            Short, no spaces, user supplied name/id/barcode, optional?
-        name:  str, unique with owner
-            Longer, user supplied name, optional?
-
-        container:  str, referencefield?
-            What container the sample is in.
-        position:  str or ?, unique with container_uid
-            Discrete, addressable location within the container
-
-        sample_group:  referencefield?
-            Linking identifier for multisample measurements.
-            eg. measuring overall completeness with many tiny crystals
-
-    example sample_type properties:
-        robot_compatible:  boolean
-        gripper_required, robot_procedure, restrictions...
-        uses_coldstream:  boolean
     """
 
-    #identifier = StringField(required=True)
     name = StringField(required=True)
-
-    #container = ReferenceField(Container, db_field='container_id')
-    #position = StringField(required=True)
-    # need a way to specify validation for position...
- 
-    # hrm... maybe a better way to do this?
-    #sample_group = ReferenceField(Sample, db_field='sample_id', required=False)
+    meta = {'collection': 'sample_group'}
     
-
-class SMType(SMDynDoc):
-    """
-    Holds user supplied info for samples, sample type info, to
-    enable proper automated handling (pin, plate_well, capillary, ade, ...),
-    and a container_uid for the container currently containing the sample.
-
-    Attributes
-    ----------
-    uid, owner, type, and properties inherited from SMDynDoc
-
-    name : str
-        The name of the sample type.
-    """
-
-    name = StringField(required=True)
-    properties = MapField(EmbeddedDocumentField(TypeKey), required=True)
-
-    meta = {'collection': 'types'}
 
 
 class Sample(SMDynDoc):
@@ -237,10 +258,13 @@ class Sample(SMDynDoc):
         uses_coldstream:  boolean
     """
 
+    #identifier = StringField(required=True)
+    name = StringField(required=True)
+
     meta = {'collection': 'sample'}
 
 
-class Request(SMDynDock):
+class Request(SMDynDoc):
     """
     Holds requested measurements, request type info, to enable proper
     automation and a sample_uid for the sample to measure.
