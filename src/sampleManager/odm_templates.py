@@ -15,25 +15,13 @@ from getpass import getuser
 
 # valid sample/container/request types per beamline stored in beamlineconfig?
 
-
-
-# Only omnipresent, required, not null fields in top level.
-# All varied or optional fields go in a whatever_props embedded doc.
-# But still use DynamicDocument... the only constant is change...
-
 # Should we make classes for well defined types (embeddeed dyn docs)?
 
-# Store "type" info in the related collections.  eg. sample_types are
-# just "samples" with type='sample_type'.  Sparse index on
-# whatever_type to quickly access.  Props for types define props for
-# instances of that type.  Can have another layer of abstraction on
-# top of 'type', 'class', to gather shared props or requirements of
-# similar types, like different types of dewars, pucks, pins, plates,
-# etc.  Supported puck types might all share the same robot gripper,
-# and similarly for plates but plates and pucks require different grippers.
-
-# hrm... this kinda degenerated.  why have 3 collections?
-
+# Can have another layer of abstraction on top of 'type', 'class', to
+# gather shared props or requirements of similar types, like different
+# types of dewars, pucks, pins, plates, etc.  Supported puck types
+# might all share the same robot gripper, and similarly for plates but
+# plates and pucks require different grippers.
 
 # properties format:  nested dictionary
 # for *_type:
@@ -44,6 +32,7 @@ from getpass import getuser
 #      ...: {}}
 
 
+# for MapField for {container,sample,request} types
 class TypeKey(DynamicEmbeddedDocument):
     """
     Describe embedded doc for SMType properties
@@ -56,6 +45,7 @@ class TypeKey(DynamicEmbeddedDocument):
     default = StringField()
 
 
+# for MapField for {container,sample,request} instances
 class InstanceKey(DynamicEmbeddedDocument):
     """
     Describe embedded doc for SM{Sample,SampleGroup,Container,Request} properties
@@ -114,48 +104,11 @@ class SMDynDoc(DynamicDocument):
     #properties = DictField(required=True)
     properties = MapField(EmbeddedDocumentField(InstanceKey), required=True)
 
-    #meta = {'allow_inheritance': True}  # or is {'abstract': True} better?
-    # get "Trying to set a collection on a subclass" warnings with the above, lets try:
+    # meta = {'allow_inheritance': True}
+    # gives us "Trying to set a collection on a subclass" warnings,
+    # but {'abstract': True} works
     meta = {'abstract': True}
 
-
-#class SampleKeys(DynamicEmbeddedDocument):
-#    """
-#    Required property definitions for sample types.
-#
-#    properties examples:
-#        see common examples in SMDynDoc
-#
-#        identifer:  str, unique with owner
-#            Short, no spaces, user supplied name/id/barcode, optional?
-#        name:  str, unique with owner
-#            Longer, user supplied name, optional?
-#
-#        container:  str, referencefield?
-#            What container the sample is in.
-#        position:  str or ?, unique with container_uid
-#            Discrete, addressable location within the container
-#
-#        sample_group:  referencefield?
-#            Linking identifier for multisample measurements.
-#            eg. measuring overall completeness with many tiny crystals
-#
-#    example sample_type properties:
-#        robot_compatible:  boolean
-#        gripper_required, robot_procedure, restrictions...
-#        uses_coldstream:  boolean
-#    """
-#
-#    #identifier = StringField(required=True)
-#    name = StringField(required=True)
-#
-#    #container = ReferenceField(Container, db_field='container_id')
-#    #position = StringField(required=True)
-#    # need a way to specify validation for position...
-# 
-#    # hrm... maybe a better way to do this?
-#    #sample_group = ReferenceField(Sample, db_field='sample_id', required=False)
-    
 
 class SMType(SMDynDoc):
     """
@@ -217,15 +170,23 @@ class Container(SMDynDoc):
     """
 
     identifier = StringField(required=True)
-    meta = {'collection': 'container'}
+    meta = {'collection': 'containers'}
 
 
 class SampleGroup(SMDynDoc):
     """
+    Holds info about related groups of samples.
+
+    eg. For measurements requiring multiple samples to complete,
+    like tiny crystals which are destroyed before a full dataset
+    can be collected... need lots of the tiny crystals, and this data
+    structure to store overall completeness information, etc.
     """
 
     name = StringField(required=True)
-    meta = {'collection': 'sample_group'}
+    type = 
+
+    meta = {'collection': 'samples'}
     
 
 
@@ -265,7 +226,7 @@ class Sample(SMDynDoc):
     #identifier = StringField(required=True)
     name = StringField(required=True)
 
-    meta = {'collection': 'sample'}
+    meta = {'collection': 'samples'}
 
 
 class Request(SMDynDoc):
@@ -309,4 +270,4 @@ class Request(SMDynDoc):
         autocollect_threshold
     """
 
-    meta = {'collection': 'request'}
+    meta = {'collection': 'requests'}
