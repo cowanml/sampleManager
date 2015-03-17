@@ -2,9 +2,9 @@
 ODM templates for use with samplemanager
 """
 from mongoengine import Document, DynamicDocument, DynamicEmbeddedDocument
-from mongoengine import (StringField, DictField, IntField, FloatField,
-                         ListField, ReferenceField, EmbeddedDocumentField,
-                         DENY, MapField)
+from mongoengine import (StringField, DictField, FloatField, DynamicField,
+                         ReferenceField, GenericReferenceField, EmbeddedDocumentField,
+                         MapField)
 
 from getpass import getuser
 
@@ -109,12 +109,14 @@ class SMDynDoc(DynamicDocument):
     owner = StringField(required=True)
 
     # does genericref take a performance hit?
-    type = GenericReferenceField(required=True)
+    type = GenericReferenceField(required=False)
 
     #properties = DictField(required=True)
     properties = MapField(EmbeddedDocumentField(InstanceKey), required=True)
 
-    meta = {'allow_inheritance': True}  # or is {'abstract': True} better?
+    #meta = {'allow_inheritance': True}  # or is {'abstract': True} better?
+    # get "Trying to set a collection on a subclass" warnings with the above, lets try:
+    meta = {'abstract': True}
 
 
 #class SampleKeys(DynamicEmbeddedDocument):
@@ -163,14 +165,16 @@ class SMType(SMDynDoc):
 
     Attributes
     ----------
-    uid, owner, type, and properties inherited from SMDynDoc
+    uid, owner, and properties inherited from SMDynDoc
 
     name : str
         The name of the sample type.
     """
 
+    type = GenericReferenceField(required=False)
+
     name = StringField(required=True)
-    properties = MapField(EmbeddedDocumentField(TypeKey), required=True)
+    properties = MapField(EmbeddedDocumentField(TypeKey), required=False)
 
     meta = {'collection': 'types'}
 
