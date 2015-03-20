@@ -12,8 +12,9 @@ sphinx_py3doc_enhanced_theme
 # mv ordereddict to tox.. py vers dep
 #OrderedDict
 
+# why was numpy even here?
 #numpy + pypy isnt happy in travis :(
-numpy
+#numpy
 
 #pymongo
 mongoengine
