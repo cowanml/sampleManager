@@ -12,13 +12,16 @@ sphinx_py3doc_enhanced_theme
 # mv ordereddict to tox.. py vers dep
 #OrderedDict
 
+# why was numpy even here?
 #numpy + pypy isnt happy in travis :(
-numpy
+#numpy
+
+pyaml
 
 #pymongo
 mongoengine
 
--e https://github.com/NSLS-II/metadatastore.git#egg=metadatastore
+#-e git://github.com/NSLS-II/metadatastore.git#egg=metadatastore
 -e .
 
 
