@@ -1,11 +1,12 @@
 # Data retrieval
-from .commands import (find, find_sample, find_container, find_request)
+#from .commands import (find, find_samples, find_containers, find_requests,)
+from .commands import (find_samples, find_containers, find_requests,)
 
 # Data insertion/modification
-from .commands import (add_sample, create_container, create_request)
-from .commands import (save_sample, save_container, save_request)
-from .commands import (change_request_priority, change_sample_container)
-from .commands import (toggle_sample, update_container_status)
+from .commands import (insert_sample, insert_container, insert_request)
+#from .commands import (save_sample, save_container, save_request)
+#from .commands import (change_request_priority, change_sample_container)
+#from .commands import (toggle_sample, update_container_status)
 
 # __val_sample_pos, _isinstance, decode_{container,request,sample}_cursor
 # get_{container,request,sample}_mongo_id
