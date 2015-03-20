@@ -16,6 +16,8 @@ sphinx_py3doc_enhanced_theme
 #numpy + pypy isnt happy in travis :(
 #numpy
 
+pyaml
+
 #pymongo
 mongoengine
 
