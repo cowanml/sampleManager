@@ -125,7 +125,9 @@ class SMDynDoc(DynamicDocument):
         objs = self.__class__.objects()
         qs = self.__class__.objects()
         os = qs.only('uid')
-        print os
+# must not actually do the query until being printed?
+# then dies from infinite recursion :(
+#        print os
 
 
         try:
