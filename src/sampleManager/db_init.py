@@ -14,7 +14,7 @@ from mongoengine import connect
 from sampleManager import conf
 
 
-from .util import new_uuid
+from .util import new_uid
 from .odm_templates import (Sample, SampleGroup, Container, Request, SMType)
 
 

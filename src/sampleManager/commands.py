@@ -28,7 +28,7 @@ def insert_sample(owner=None, type=None, properties=None, name=None, identifier=
     """
 
     if uid is None:
-        uid = new_uid('sample')
+        uid = str(new_uid('sample'))
 
     if owner is None:
         raise ValueError('Must specify owner.')
@@ -47,7 +47,7 @@ def insert_sample_group(uid=None,):
     """
     
     if uid == None:
-        uid = new_uid('sample_group')
+        uid = str(new_uid('sample_group'))
 
 
 def insert_container():
