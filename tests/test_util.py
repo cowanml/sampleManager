@@ -2,7 +2,14 @@ from __future__ import (absolute_import)
 
 import pytest
 
-from .util import new_uid
+# add source dir to path.  Shouldn't tox take care of this for me?
+import sys
+sys.path.append('./src/sampleManager')
+
+
+import uuid
+
+from util import new_uid
 
 
 def test_new_uid():
