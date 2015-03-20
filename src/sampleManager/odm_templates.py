@@ -122,23 +122,11 @@ class SMDynDoc(DynamicDocument):
 
         DynamicDocument.__init__(self, *args, **kwargs)
 
-        objs = self.__class__.objects()
-        qs = self.__class__.objects()
-        os = qs.only('uid')
-# must not actually do the query until being printed?
-# then dies from infinite recursion :(
-#        print os
-
-
         try:
             if(kwargs['uid'] is None or kwargs['uid'] == ''):
-                self.uid = new_uid(alias=self._meta['db_alias'],
-                                   s=objs.only('uid'))
-#                                   s=self)
+                self.uid = new_uid()
         except KeyError:
-            self.uid = new_uid(alias=self._meta['db_alias'],
-                               s=objs.only('uid'))
-#                               s=self)
+            self.uid = new_uid()
 
 
 class SMType(SMDynDoc):
