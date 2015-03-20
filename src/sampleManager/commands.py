@@ -14,7 +14,7 @@ from metadatastore.commands import (db_connect, db_disconnect, _ensure_connectio
 from sampleManager import conf
 
 
-from .util import new_uuid
+from .util import new_uid
 from .odm_templates import (Sample, SampleGroup, Container, Request, SMType)
 
 
@@ -28,10 +28,7 @@ def insert_sample(owner=None, type=None, properties=None, name=None, identifier=
     """
 
     if uid is None:
-        while(True):
-            new_uid = uuid.uuid4()
-            used = Sample.objects(uid=new_uid)
-            
+        uid = new_uid('sample')
 
     if owner is None:
         raise ValueError('Must specify owner.')
@@ -45,9 +42,13 @@ def insert_sample(owner=None, type=None, properties=None, name=None, identifier=
     
 
 
-def insert_sample_group():
+def insert_sample_group(uid=None,):
     """
-    """    
+    """
+    
+    if uid == None:
+        uid = new_uid('sample_group')
+
 
 def insert_container():
     """

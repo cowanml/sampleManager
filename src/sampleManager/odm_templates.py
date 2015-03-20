@@ -8,6 +8,10 @@ from mongoengine import (StringField, DictField, FloatField, DynamicField,
 
 from getpass import getuser
 
+from util import new_uid
+
+ALIAS = 'sm'
+
 
 # should we have accounting stuff?
 #   created, last_modified, modified_by{name,ip} ?
@@ -62,7 +66,7 @@ class InstanceKey(DynamicEmbeddedDocument):
     time = FloatField(required=True)
 
 
-# SampleManagerDynamicDocument
+# SampleManagerDynamicDocument, parent class of all the sm collections
 class SMDynDoc(DynamicDocument):
     """
     Parent class for SampleManager dynamic documents.
@@ -107,7 +111,32 @@ class SMDynDoc(DynamicDocument):
     # meta = {'allow_inheritance': True}
     # gives us "Trying to set a collection on a subclass" warnings,
     # but {'abstract': True} works
-    meta = {'abstract': True}
+    meta = {'abstract': True, 'db_alias': ALIAS}
+
+
+    def __init__(self, *args, **kwargs):
+        """
+        If we're not given a uid or given None or '',
+        generate a new, unused uid.
+        """
+
+        DynamicDocument.__init__(self, *args, **kwargs)
+
+        objs = self.__class__.objects()
+        qs = self.__class__.objects()
+        os = qs.only('uid')
+        print os
+
+
+        try:
+            if(kwargs['uid'] is None or kwargs['uid'] == ''):
+                self.uid = new_uid(alias=self._meta['db_alias'],
+                                   s=objs.only('uid'))
+#                                   s=self)
+        except KeyError:
+            self.uid = new_uid(alias=self._meta['db_alias'],
+                               s=objs.only('uid'))
+#                               s=self)
 
 
 class SMType(SMDynDoc):
@@ -184,7 +213,7 @@ class SampleGroup(SMDynDoc):
     """
 
     name = StringField(required=True)
-    type = 
+#    type = 
 
     meta = {'collection': 'samples'}
     
