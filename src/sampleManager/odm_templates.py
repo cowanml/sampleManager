@@ -8,7 +8,7 @@ from mongoengine import (StringField, DictField, FloatField, DynamicField,
 
 from getpass import getuser
 
-from util import new_uid
+from .util import new_uid
 
 ALIAS = 'sm'
 
