@@ -14,7 +14,7 @@ from mongoengine import connect
 from . import conf
 
 
-from .util import new_uid
+from .util import (new_uid, get_owner)
 from .odm_templates import (Sample, SampleGroup, Container, Request, SMType)
 
 
@@ -23,8 +23,36 @@ logger = logging.getLogger(__name__)
 
 # Data insertion/modification
 
-def insert_sample(owner=None, type=None, properties=None, name=None, identifier=None, uid=None):
+def insert_sample(uid=None, owner=None, type=None, properties=None, name=None, identifier=None, container=None, position=None, custom=None):
     """
+    Insert a new sample
+
+    Parameters
+    ----------
+    uid, owner, type, and properties
+
+    name : str
+        A short, human readable, name for the sample.
+
+    identifier : str
+        An identifier for the sample.  Meant for machine
+        readable stuff:  serial#, barcode, etc.
+
+    name and identifier are optional, but atleast one is required.
+
+    container : samplemanager.odm_templates.Container, optional?
+        Foreign key to container holding the sample.
+
+    position : str, optional?
+        Position within the container
+
+    custom : dict, optional
+        Any additional information to attach to the sample.
+
+    Returns
+    -------
+    sample: mongoengine.Document
+        Inserted mongoengine object
     """
 
     # default uid creation inherited from SMDynDoc
@@ -38,18 +66,51 @@ def insert_sample(owner=None, type=None, properties=None, name=None, identifier=
     if name is None and identifier is None:
         raise ValueError('Must specify atleast one of "name" or "identifier".')
 
-    
+    sample = Sample(uid=uid, owner=owner, type=type, properties=properties,
+                    name=name, identifier=identifier, container=container, position=position,
+                    **custom)
+
+    sample.save(validate=True, write_concert={"w": 1})
+    logger.debug('Inserted Sample with uid %s', sample.uid)
+
+    return sample
 
 
-def insert_sample_group(uid=None,):
+def insert_sample_group(uid=None, owner=None, type=None, properties=None, name=None, custom=None):
     """
-    """
+    Holds info about related groups of samples.
+
+    eg. For measurements requiring multiple samples to complete,
+    like tiny crystals which are destroyed before a full dataset
+    can be collected... need lots of the tiny crystals, and this data
+    structure to store overall completeness information, etc.
+
+    Parameters
+    ----------
+    uid, owner, type, and properties
+
+    name : str
+       A short, human readable, name for the sample group.
     
+    """
+
+    # default uid creation inherited from SMDynDoc    
+
     if uid == None:
         uid = str(new_uid('sample_group'))
 
+    sample_group = SampleGroup(uid=uid, owner=owner, type=type, properties=properties,
+                     name=name, **custom)
 
-def insert_container():
+    sample_group.save(validate=True, write_concert={"w": 1})
+    logger.debug('Inserted Sample Group with uid %s', sample_group.uid)
+
+    return sample_group
+    
+
+
+def insert_container(uid=None, owner=None, type=None, properties=None,
+                     ):
     """
     """
 
@@ -58,12 +119,12 @@ def insert_request():
     """
 
 
-def insert_type(uid=None, owner=None, properties=None,
-                name=None, type=None):
+def insert_type(uid=None, owner=None, type=None, properties=None,
+                name=None):
     """
     Create a new type (sample, container, request, whatever)
 
-    Attributes
+    Parameters
     ----------
     uid, owner, and properties inherited from SMDynDoc  
 
@@ -84,8 +145,8 @@ def insert_type(uid=None, owner=None, properties=None,
     if name is None:
         raise ValueError('Must specify name.')
 
-    sm_type = SMType(uid=uid, owner=owner, properties=properties,
-                     name=name, type=type)
+    sm_type = SMType(uid=uid, owner=owner, type=type, properties=properties,
+                     name=name)
 
     sm_type.save(validate=True, write_concert={"w": 1})
     logger.debug('Inserted SMType with uid %s', sm_type.uid)
