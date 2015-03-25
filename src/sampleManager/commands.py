@@ -27,8 +27,7 @@ def insert_sample(owner=None, type=None, properties=None, name=None, identifier=
     """
     """
 
-    if uid is None:
-        uid = str(new_uid('sample'))
+    # default uid creation inherited from SMDynDoc
 
     if owner is None:
         raise ValueError('Must specify owner.')
@@ -59,19 +58,50 @@ def insert_request():
     """
 
 
-def insert_types():
+def insert_type(uid=None, owner=None, properties=None,
+                name=None, type=None):
+    """
+    Create a new type (sample, container, request, whatever)
+
+    Attributes
+    ----------
+    uid, owner, and properties inherited from SMDynDoc  
+
+    name : str
+        The name of the new type.
+
+    Returns
+    -------
+    sm_type: mongoengine.Document
+        Inserted mongoengine object
+    """
+
+    # default uid creation inherited from SMDynDoc
+
+    if owner is None:
+        raise ValueError('Must specify owner.')
+
+    if name is None:
+        raise ValueError('Must specify name.')
+
+    sm_type = SMType(uid=uid, owner=owner, properties=properties,
+                     name=name, type=type)
+
+    sm_type.save(validate=True, write_concert={"w": 1})
+    logger.debug('Inserted SMType with uid %s', sm_type.uid)
+
+    return sm_type
+    
+
+def insert_sample_type():
     """
     """
 
-def insert_sample_types():
+def insert_container_type():
     """
     """
 
-def insert_container_types():
-    """
-    """
-
-def insert_request_types():
+def insert_request_type():
     """
     """
 
