@@ -131,16 +131,14 @@ class SMDynDoc(DynamicDocument):
 
 class SMType(SMDynDoc):
     """
-    Holds user supplied info for samples, sample type info, to
-    enable proper automated handling (pin, plate_well, capillary, ade, ...),
-    and a container_uid for the container currently containing the sample.
+    Holds info about sample, container, request, whatever types/"classes".
 
     Attributes
     ----------
     uid, owner, and properties inherited from SMDynDoc
 
     name : str
-        The name of the sample type.
+        The name of the type.
     """
 
     type = GenericReferenceField(required=False)
