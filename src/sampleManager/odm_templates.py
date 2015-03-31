@@ -23,7 +23,7 @@ ALIAS = 'sm'
 #   created, last_modified, modified_by{name,ip} ?
 #   location/time ?
 
-# valid sample/container/request types per beamline stored in beamlineconfig?
+# valid sample/location/request types per beamline stored in beamlineconfig?
 
 # Should we make classes for well defined types (embeddeed dyn docs)?
 
@@ -42,7 +42,7 @@ ALIAS = 'sm'
 #      ...: {}}
 
 
-# for MapField for {container,sample,request} types
+# for MapField for {location,sample,request} types
 class TypeKey(DynamicEmbeddedDocument):
     """
     Describe embedded doc for SMType properties
@@ -55,10 +55,10 @@ class TypeKey(DynamicEmbeddedDocument):
     default = StringField()
 
 
-# for MapField for {container,sample,request} instances
+# for MapField for {location,sample,request} instances
 class InstanceKey(DynamicEmbeddedDocument):
     """
-    Describe embedded doc for SM{Sample,SampleGroup,Container,Request} properties
+    Describe embedded doc for SM{Sample,SampleGroup,Location,Request} properties
     """
 
     value = DynamicField(required=True)
@@ -91,7 +91,7 @@ class SMDynDoc(DynamicDocument):
         Type of an object
         Type record provides relevant common/fixed details, etc.
         Sample type: eg. pin, capillary, etc
-        Container type: eg. dewar, puck, plate
+        Location type: eg. dewar, puck, plate, room, shelf, gonio head
         Request type:  sweep, gridscan, screen
 
     prop:  (ie. properties)  EmbeddedDynamicDocument
@@ -140,7 +140,7 @@ class SMDynDoc(DynamicDocument):
 
 class SMType(SMDynDoc):
     """
-    Holds info about sample, container, request, whatever types/"classes".
+    Holds info about sample, location, request, whatever types/"classes".
 
     Attributes
     ----------
@@ -162,10 +162,9 @@ class SMType(SMDynDoc):
 
 class SMPhysicalObj(SMDynDoc):
     """
-    Superclass for physical objects (containers, samples) which:
+    Superclass for physical objects (locations, samples) which:
 
     - must have atleast one of 'identifier' or 'name'
-    - must have atleast one of 'container'+'position' or 'location'
 
     Attributes
     ----------
@@ -174,10 +173,8 @@ class SMPhysicalObj(SMDynDoc):
     identifier : str, ~required, unique with owner
     name : str, ~optional, unique with owner
 
-    container : bson.ObjectId, ~optional
-    position : str, ~optional, unique with container
-
-    location : str, ~optional
+    location : bson.ObjectId
+    position : str, optional, unique with location
     """
 
     def __copy_name(self, *args, **kwargs): 
@@ -191,27 +188,10 @@ class SMPhysicalObj(SMDynDoc):
         except KeyError:
             raise ValueError('Must specify atleast one of:  identifier or name')
 
-    def __check_container_pos(self, *args, **kwargs):
-        try:
-            if kwargs['container'] is not None and kwargs['container'] != '':
-                try:
-                    if kwargs['position]'] is None or kwargs['position]'] == '':
-                        raise ValueError('empty position: Must specify container *and* position')
-                except KeyError:
-                    raise ValueError('missing position: Must specify container *and* position')
-            else:
-                raise ValueError('no location and empty container: Must specify atleast one of:  container+position or location')
-
-        except KeyError:
-            raise ValueError('no location and missing container: Must specify atleast one of:  container+position or location')
-
-
     def __init__(self, *args, **kwargs):
         """
         If we're not given an identifier (or given None or ''),
         but given a name, copy name to identifier.
-
-        Atleast one of container+position or location is required.
         """
         
         # superclass __init__
@@ -220,36 +200,26 @@ class SMPhysicalObj(SMDynDoc):
         # copy 'name' to 'identifier' if needed
         run_on_empty(self.__copy_name, [self]+list(args), kwargs, 'identifier', **kwargs)
 
-        # enforce needing one of:  location or container+position
-        run_on_empty(self.__check_container_pos, [self]+list(args), kwargs, 'location', **kwargs)
-
 
     identifier = StringField(required=True)
     name = StringField()
 
-# arg, no, self isn't right... how to do this?
-# could move it into Container and Sample? :(
-# or just cheese out for now and make it a genericreferencefield?
-#    container = ReferenceField('self', reverse_delete_rule=DENY)
-#    container = ReferenceField(Container, reverse_delete_rule=DENY)
-    container = GenericReferenceField()
+    location = GenericReferenceField()
     position = StringField()
-
-    location = StringField()
 
     meta = {'abstract': True}
     
 
-class Container(SMPhysicalObj):
+class Location(SMPhysicalObj):
     """
     Describes a sample carrier:  dewar, puck, plate, etc. etc.
 
     Attributes
     ----------
     uid, owner, type, and prop and
-    container, position, location inherited from SMPhysicalObj
+    location, position inherited from SMPhysicalObj
 
-    container properties examples:
+    location properties examples:
         see common examples in SMDynDoc
 
         identifier:  str, unique with owner
@@ -262,20 +232,12 @@ class Container(SMPhysicalObj):
         [can that be implemented in the class with identifier required=True?]
 
 
-        container:  str or id?  referencefield?
-            We have nested containers.  meshes in pucks in dewars...
-        position:  str or ?, unique with container_uid
-            Discrete, addressable location within the container
+        location:  str or id?  referencefield?
+            We can have nested locations/containers.  meshes in pucks in dewars...
+        position:  str, unique with location
+            Discrete, addressable position within a location/container
 
-        location:  [str or id?]
-
-        Require atleast one of:  container+position or location
-
-        Position required if given container; doesn't
-        make sense without container.
-
-        
-    example container_type properties:
+    example location_type properties:
         needs_nitrogen:  boolean
         capacity, layout (eg for robots),...
         robot_compatible:  boolean
@@ -285,7 +247,7 @@ class Container(SMPhysicalObj):
         last_nitrogen_fill, next_nitrogen_fill:  timestamp
     """
 
-    meta = {'collection': 'containers'}
+    meta = {'collection': 'locations'}
 
 
 # not quite fully baked?
@@ -320,12 +282,12 @@ class Sample(SMPhysicalObj):
     """
     Holds user supplied info for samples, sample type info, to
     enable proper automated handling (pin, plate_well, capillary, ade, ...),
-    and a container_uid for the container currently containing the sample.
+    and a location id for the location currently containing the sample.
 
     Attributes
     ----------
     uid, owner, type, and prop and
-    container, position, location inherited from SMPhysicalObj
+    location, position inherited from SMPhysicalObj
 
     properties examples:
         see common examples in SMDynDoc
@@ -339,18 +301,10 @@ class Sample(SMPhysicalObj):
         If given only name, duplicate to identifier
 
 
-        container:  str, referencefield?
-            What container the sample is in.
-        position:  str or ?, unique with container_uid
-            Discrete, addressable location within the container
-
-        location:  [str or id?]
-
-        Require atleast one of:  container+position or location
-
-        Position required if given container; doesn't
-        make sense without container.
-
+        location:  referencefield
+            What location/container the sample is in.
+        position:  str, unique with location
+            Discrete, addressable position within the location/container
 
     example sample_type properties:
         sample_group:  ReferenceField

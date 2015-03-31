@@ -16,13 +16,13 @@ if __package__ is None:
     import conf
 
     from util import (new_uid, get_owner)
-    from odm_templates import (Sample, Container, Request, SMType)
+    from odm_templates import (Sample, Location, Request, SMType)
 
 else:
     from . import conf
     
     from .util import (new_uid, get_owner)
-    from .odm_templates import (Sample, Container, Request, SMType)
+    from .odm_templates import (Sample, Location, Request, SMType)
 
 
 logger = logging.getLogger(__name__)
@@ -32,8 +32,7 @@ logger = logging.getLogger(__name__)
 
 def insert_sample(uid=None, owner=None, type=None, prop=None,
                   name=None, identifier=None,
-                  container=None, position=None,
-                  location=None,
+                  location=None, position=None,
                   custom=None):
     """
     Insert a new sample
@@ -52,14 +51,10 @@ def insert_sample(uid=None, owner=None, type=None, prop=None,
     Name and identifier are optional, but atleast one is required,
     and name will be copied to identifier if only name is given.
 
-    container : samplemanager.odm_templates.Container, ~optional
-        Foreign key to container holding the sample.
-    position : str, ~optional
-        Position within the container
-
-    location : str, ~optional
-
-    Atleast one of location or container+position are required.
+    location : samplemanager.odm_templates.Location,
+        Foreign key to location holding the sample.
+    position : str, optional
+        Position within the location/container
 
     custom : dict, optional
         Any additional information to attach to the sample.
@@ -75,8 +70,7 @@ def insert_sample(uid=None, owner=None, type=None, prop=None,
 
     sample = Sample(uid=uid, owner=owner, type=type, prop=prop,
                     name=name, identifier=identifier,
-                    container=container, position=position,
-                    location=location,
+                    location=location, position=position,
                     **custom)
 
     sample.save(validate=True, write_concert={"w": 1})
@@ -115,59 +109,53 @@ def insert_sample(uid=None, owner=None, type=None, prop=None,
     
 
 
-def insert_container(uid=None, owner=None, type=None, prop=None,
+def insert_location(uid=None, owner=None, type=None, prop=None,
                      name=None, identifier=None,
-                     container=None, position=None,
-                     location=None,
+                     location=None, position=None,
                      custom=None):
     """
-    Insert a new container
+    Insert a new location
 
     Parameters
     ----------
     uid, owner, type, and prop : inherited from SMPhysicalObj
 
     name : str, optional
-        A short, human readable, name for the container.
+        A short, human readable, name for the location.
 
     identifier : str
-        An identifier for the container.  Meant for machine
+        An identifier for the location.  Meant for machine
         readable stuff:  serial#, barcode, etc.
 
     Name and identifier are optional, but atleast one is required,
     and name will be copied to identifier if only name is given.
 
-    container : samplemanager.odm_templates.Container, ~optional
-        Foreign key to container holding the container.
+    location : samplemanager.odm_templates.Location, ~optional
+        Foreign key to a location/container containing this location/container.
     position : str, ~optional
-        Position within the container
-
-    location : str, ~optional
-
-    Atleast one of location or container+position are required.
+        Position within the location/container
 
     custom : dict, optional
-        Any additional information to attach to the container.
+        Any additional information to attach to the location.
         Dictionary is unpacked, and elements attached directly to
-        container.  To attach a dictionary it must be nested inside
+        location.  To attach a dictionary it must be nested inside
         custom.
 
     Returns
     -------
-    container: mongoengine.Document
+    location: mongoengine.Document
         Inserted mongoengine object
     """
     
-    container = Container(uid=uid, owner=owner, type=type, prop=prop,
+    location = Location(uid=uid, owner=owner, type=type, prop=prop,
                           name=name, identifier=identifier,
-                          container=container, position=position,
-                          location=location,
+                          location=location, position=position,
                           **custom)
 
-    container.save(validate=True, write_concert={"w": 1})
-    logger.debug('Inserted Container with uid %s', container.uid)
+    location.save(validate=True, write_concert={"w": 1})
+    logger.debug('Inserted Location with uid %s', location.uid)
 
-    return container
+    return location
 
 
 def insert_request(uid=None, owner=None, type=None, prop=None,
@@ -208,7 +196,7 @@ def _insert_type(uid=None, owner=None, type=None, prop=None,
                  prop_keys=None,
                  custom=None):
     """
-    Create a new type (sample, container, request, whatever)
+    Create a new type (sample, location, request, whatever)
 
     Parameters
     ----------
@@ -268,7 +256,7 @@ def insert_sample_type(uid=None, owner=None, prop=None,
                  name=name,
                  **custom)
 
-def insert_container_type(uid=None, owner=None, prop=None,
+def insert_location_type(uid=None, owner=None, prop=None,
                        name=None,
                        prop_keys=None,
                        custom=None):
@@ -305,7 +293,7 @@ def find_samples(**kwargs):
 #    """
 #    """
 
-def find_containers(**kwargs):
+def find_locations(**kwargs):
     """
     """
 
@@ -322,7 +310,7 @@ def find_sample_types(**kwargs):
     """
     """
 
-def find_container_types(**kwargs):
+def find_location_types(**kwargs):
     """
     """
 
