@@ -4,11 +4,17 @@ ODM templates for use with samplemanager
 from mongoengine import Document, DynamicDocument, DynamicEmbeddedDocument
 from mongoengine import (StringField, DictField, FloatField, DynamicField,
                          ReferenceField, GenericReferenceField, EmbeddedDocumentField,
-                         MapField)
+                         MapField,
+                         DENY)
 
 from getpass import getuser
 
-from .util import (new_uid, run_on_empty)
+if __package__ is None:
+    from util import (new_uid, run_on_empty)
+
+else:
+    from .util import (new_uid, run_on_empty)
+
 
 ALIAS = 'sm'
 
@@ -41,7 +47,7 @@ class TypeKey(DynamicEmbeddedDocument):
     """
     Describe embedded doc for SMType properties
     """
-
+    desc = StringField(required=True)
     dtype = StringField(required=True,
                         choices=('integer', 'number', 'array',
                                  'boolean', 'string'))
@@ -56,14 +62,13 @@ class InstanceKey(DynamicEmbeddedDocument):
     """
 
     value = DynamicField(required=True)
+    time = FloatField(required=True)
 
     # limit choices?  choices=('pass2',
     #   			'{staff,user}_entered_{cli,gui,web}',
     #                           '{staff,user}_imported',  # spreadsheet upload to web
     #                           'default')
     source = StringField(required=True)
-
-    time = FloatField(required=True)
 
 
 # SampleManagerDynamicDocument, parent class of all the sm collections
@@ -90,7 +95,16 @@ class SMDynDoc(DynamicDocument):
         Request type:  sweep, gridscan, screen
 
     prop:  (ie. properties)  EmbeddedDynamicDocument
-        Put everything optional/varying in here.
+        Dict of InstanceKey dicts of property values and metadata:
+        # or should this be a Dict of Tuples?
+        # could use value_idx=0, time_idx=1, source_idx=2 to make
+        # it nearly the same...
+
+        { 'property_name1':
+          { value: dtype_of_this_property,
+            time: time,
+            source: str  # user input, user upload (eg spreadsheet)
+          }, ...}
 
     properties examples:
         group:  str or id?
@@ -184,7 +198,7 @@ class SMPhysicalObj(SMDynDoc):
                     if kwargs['position]'] is None or kwargs['position]'] == '':
                         raise ValueError('empty position: Must specify container *and* position')
                 except KeyError:
-                        raise ValueError('missing position: Must specify container *and* position')
+                    raise ValueError('missing position: Must specify container *and* position')
             else:
                 raise ValueError('no location and empty container: Must specify atleast one of:  container+position or location')
 
@@ -201,36 +215,29 @@ class SMPhysicalObj(SMDynDoc):
         """
         
         # superclass __init__
-        DynamicDocument.__init__(self, *args, **kwargs)
+        DynamicDocument.__init__(self, *args, **kwargs)  # or SMDynDoc?
 
-
+        # copy 'name' to 'identifier' if needed
         run_on_empty(self.__copy_name, [self]+list(args), kwargs, 'identifier', **kwargs)
 
-#        try:
-#            if kwargs['identifier'] is None or kwargs['identifier'] == '':
-#                self.__copy_name(self, *args, **kwargs)
-#
-#        except KeyError:
-#            self.__copy_name(self, *args, **kwargs)
-
-
+        # enforce needing one of:  location or container+position
         run_on_empty(self.__check_container_pos, [self]+list(args), kwargs, 'location', **kwargs)
-
-#        try:
-#            if kwargs['location'] is None or kwargs['location'] == '':
-#                self.__check_container_pos(self, *args, **kwargs)
-#
-#        except KeyError:
-#            self.__check_container_pos(self, *args, **kwargs)
 
 
     identifier = StringField(required=True)
     name = StringField()
 
-    container = ReferenceField()
+# arg, no, self isn't right... how to do this?
+# could move it into Container and Sample? :(
+# or just cheese out for now and make it a genericreferencefield?
+#    container = ReferenceField('self', reverse_delete_rule=DENY)
+#    container = ReferenceField(Container, reverse_delete_rule=DENY)
+    container = GenericReferenceField()
     position = StringField()
 
     location = StringField()
+
+    meta = {'abstract': True}
     
 
 class Container(SMPhysicalObj):
@@ -281,6 +288,7 @@ class Container(SMPhysicalObj):
     meta = {'collection': 'containers'}
 
 
+# not quite fully baked?
 class SampleGroup(SMDynDoc):
     """
     Holds info about related groups of samples.
@@ -297,8 +305,12 @@ class SampleGroup(SMDynDoc):
     name : str, unique with owner
     """
 
+    # Maybe isinstance to check 'type' is a sample_group type?
+    # Should default to a ref to a 'generic_sample_group' type entry, 
+    # which has a parent type of 'sample_group_type' or something?
+
     name = StringField(required=True)
-#    type = ref to sample_group_type  # don't worry about this till we need it
+    type = ReferenceField(SMType, required=True)
 
     meta = {'collection': 'samples'}
     
