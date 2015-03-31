@@ -8,7 +8,7 @@ from mongoengine import (StringField, DictField, FloatField, DynamicField,
 
 from getpass import getuser
 
-from .util import new_uid
+from .util import (new_uid, run_on_empty)
 
 ALIAS = 'sm'
 
@@ -89,7 +89,7 @@ class SMDynDoc(DynamicDocument):
         Container type: eg. dewar, puck, plate
         Request type:  sweep, gridscan, screen
 
-    properties:  EmbeddedDynamicDocument
+    prop:  (ie. properties)  EmbeddedDynamicDocument
         Put everything optional/varying in here.
 
     properties examples:
@@ -103,10 +103,9 @@ class SMDynDoc(DynamicDocument):
     owner = StringField(required=True)
 
     # does genericref take a performance hit?
-    type = GenericReferenceField(required=False)
+    type = GenericReferenceField(required=True)
 
-    #properties = DictField(required=True)
-    properties = MapField(EmbeddedDocumentField(InstanceKey), required=True)
+    prop = MapField(EmbeddedDocumentField(InstanceKey), required=False)
 
     # meta = {'allow_inheritance': True}
     # gives us "Trying to set a collection on a subclass" warnings,
@@ -122,11 +121,7 @@ class SMDynDoc(DynamicDocument):
 
         DynamicDocument.__init__(self, *args, **kwargs)
 
-        try:
-            if(kwargs['uid'] is None or kwargs['uid'] == ''):
-                self.uid = new_uid()
-        except KeyError:
-            self.uid = new_uid()
+        self.uid = run_on_empty(new_uid, [], {}, 'uid', **kwargs)
 
 
 class SMType(SMDynDoc):
@@ -135,58 +130,154 @@ class SMType(SMDynDoc):
 
     Attributes
     ----------
-    uid, owner, and properties inherited from SMDynDoc
+    uid, owner, and prop inherited from SMDynDoc
 
     name : str
         The name of the type.
+
+    prop_keys : dict
+        dictionary of TypeKeys for the type
     """
 
-    type = GenericReferenceField(required=False)
-
+    type = GenericReferenceField(required=False)  # overide inherited required=True
     name = StringField(required=True)
-    properties = MapField(EmbeddedDocumentField(TypeKey), required=False)
+    prop_keys = MapField(EmbeddedDocumentField(TypeKey), required=False)
 
     meta = {'collection': 'types'}
 
 
-class Container(SMDynDoc):
+class SMPhysicalObj(SMDynDoc):
+    """
+    Superclass for physical objects (containers, samples) which:
+
+    - must have atleast one of 'identifier' or 'name'
+    - must have atleast one of 'container'+'position' or 'location'
+
+    Attributes
+    ----------
+    uid, owner, type, and prop inherited from SMDynDoc
+
+    identifier : str, ~required, unique with owner
+    name : str, ~optional, unique with owner
+
+    container : bson.ObjectId, ~optional
+    position : str, ~optional, unique with container
+
+    location : str, ~optional
+    """
+
+    def __copy_name(self, *args, **kwargs): 
+        """
+        identifier is required, but if name is given and not identifier,
+        copy name to identifier.
+        """
+        try:
+            if kwargs['name'] is not None and kwargs['name'] != '':
+                self.identifier = kwargs['name']
+        except KeyError:
+            raise ValueError('Must specify atleast one of:  identifier or name')
+
+    def __check_container_pos(self, *args, **kwargs):
+        try:
+            if kwargs['container'] is not None and kwargs['container'] != '':
+                try:
+                    if kwargs['position]'] is None or kwargs['position]'] == '':
+                        raise ValueError('empty position: Must specify container *and* position')
+                except KeyError:
+                        raise ValueError('missing position: Must specify container *and* position')
+            else:
+                raise ValueError('no location and empty container: Must specify atleast one of:  container+position or location')
+
+        except KeyError:
+            raise ValueError('no location and missing container: Must specify atleast one of:  container+position or location')
+
+
+    def __init__(self, *args, **kwargs):
+        """
+        If we're not given an identifier (or given None or ''),
+        but given a name, copy name to identifier.
+
+        Atleast one of container+position or location is required.
+        """
+        
+        # superclass __init__
+        DynamicDocument.__init__(self, *args, **kwargs)
+
+
+        run_on_empty(self.__copy_name, [self]+list(args), kwargs, 'identifier', **kwargs)
+
+#        try:
+#            if kwargs['identifier'] is None or kwargs['identifier'] == '':
+#                self.__copy_name(self, *args, **kwargs)
+#
+#        except KeyError:
+#            self.__copy_name(self, *args, **kwargs)
+
+
+        run_on_empty(self.__check_container_pos, [self]+list(args), kwargs, 'location', **kwargs)
+
+#        try:
+#            if kwargs['location'] is None or kwargs['location'] == '':
+#                self.__check_container_pos(self, *args, **kwargs)
+#
+#        except KeyError:
+#            self.__check_container_pos(self, *args, **kwargs)
+
+
+    identifier = StringField(required=True)
+    name = StringField()
+
+    container = ReferenceField()
+    position = StringField()
+
+    location = StringField()
+    
+
+class Container(SMPhysicalObj):
     """
     Describes a sample carrier:  dewar, puck, plate, etc. etc.
 
     Attributes
     ----------
-    uid, owner, type, and properties inherited from SMDynDoc
+    uid, owner, type, and prop and
+    container, position, location inherited from SMPhysicalObj
 
     container properties examples:
         see common examples in SMDynDoc
 
         identifier:  str, unique with owner
-            Short, no spaces, user supplied name/id/barcode, optional?
-        name:  str, unique with owner
-            Longer, user supplied name, optional?
+            Short, no spaces, user supplied name/id/barcode
+        name:  str, unique with owner, optional
+            Longer, user supplied name
 
-        container_uid:  str or id?  referencefield?
-            We have nested containers.  pins in pucks in dewars...
+        Require identifier.
+        If given only name, duplicate to identifier
+        [can that be implemented in the class with identifier required=True?]
+
+
+        container:  str or id?  referencefield?
+            We have nested containers.  meshes in pucks in dewars...
         position:  str or ?, unique with container_uid
             Discrete, addressable location within the container
 
-        location:  str or id?
+        location:  [str or id?]
 
-        should have either a parent container_id or a location!
+        Require atleast one of:  container+position or location
+
+        Position required if given container; doesn't
+        make sense without container.
+
         
-        timestamp: 
-            To keep track of the physical location history
-
-        last_nitrogen_fill, next_nitrogen_fill:  timestamp
-
     example container_type properties:
         needs_nitrogen:  boolean
         capacity, layout (eg for robots),...
         robot_compatible:  boolean
         gripper_required, robot_procedure, restrictions...
+        timestamp: 
+            To keep track of the physical location history
+        last_nitrogen_fill, next_nitrogen_fill:  timestamp
     """
 
-    identifier = StringField(required=True)
     meta = {'collection': 'containers'}
 
 
@@ -198,16 +289,22 @@ class SampleGroup(SMDynDoc):
     like tiny crystals which are destroyed before a full dataset
     can be collected... need lots of the tiny crystals, and this data
     structure to store overall completeness information, etc.
+
+    Attributes
+    ----------
+    uid, owner, type, and prop inherited from SMDynDoc
+
+    name : str, unique with owner
     """
 
     name = StringField(required=True)
-#    type = 
+#    type = ref to sample_group_type  # don't worry about this till we need it
 
     meta = {'collection': 'samples'}
     
 
 
-class Sample(SMDynDoc):
+class Sample(SMPhysicalObj):
     """
     Holds user supplied info for samples, sample type info, to
     enable proper automated handling (pin, plate_well, capillary, ade, ...),
@@ -215,33 +312,40 @@ class Sample(SMDynDoc):
 
     Attributes
     ----------
-    uid, owner, type, and properties inherited from SMDynDoc
+    uid, owner, type, and prop and
+    container, position, location inherited from SMPhysicalObj
 
     properties examples:
         see common examples in SMDynDoc
 
         identifer:  str, unique with owner
-            Short, no spaces, user supplied name/id/barcode, optional?
-        name:  str, unique with owner
-            Longer, user supplied name, optional?
+            Short, no spaces, user supplied name/id/barcode
+        name:  str, unique with owner, optional
+            Longer, user supplied name
 
-        container_uid:  str, referencefield?
+        Require identifier.
+        If given only name, duplicate to identifier
+
+
+        container:  str, referencefield?
             What container the sample is in.
         position:  str or ?, unique with container_uid
             Discrete, addressable location within the container
 
-        sample_group_uid:  str or id?  referencefield?
-            Linking identifier for multisample measurements.
-            eg. measuring overall completeness with many tiny crystals
+        location:  [str or id?]
+
+        Require atleast one of:  container+position or location
+
+        Position required if given container; doesn't
+        make sense without container.
+
 
     example sample_type properties:
+        sample_group:  ReferenceField
         robot_compatible:  boolean
         gripper_required, robot_procedure, restrictions...
         uses_coldstream:  boolean
     """
-
-    #identifier = StringField(required=True)
-    name = StringField(required=True)
 
     meta = {'collection': 'samples'}
 
@@ -258,7 +362,7 @@ class Request(SMDynDoc):
 
     Attributes
     ----------
-    uid, owner, type, and properties inherited from SMDynDoc
+    uid, owner, type, and prop inherited from SMDynDoc
 
     request properties examples:
         see common examples in SMDynDoc
