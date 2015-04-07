@@ -4,7 +4,7 @@ ODM templates for use with samplemanager
 from mongoengine import Document, DynamicDocument, DynamicEmbeddedDocument
 from mongoengine import (StringField, DictField, FloatField, DynamicField,
                          ReferenceField, GenericReferenceField, EmbeddedDocumentField,
-                         MapField,
+                         MapField, BooleanField,
                          DENY)
 
 from getpass import getuser
@@ -86,8 +86,7 @@ class SMDynDoc(DynamicDocument):
         for remote... but I suppose should they later want a unix account
         might aswell reserve the matching name?
 
-    type:  str or id?   # should this be _type_uid?
-           referencefield?
+    type:  ReferenceField
         Type of an object
         Type record provides relevant common/fixed details, etc.
         Sample type: eg. pin, capillary, etc
@@ -116,8 +115,10 @@ class SMDynDoc(DynamicDocument):
     uid = StringField(required=True, unique=True)
     owner = StringField(required=True)
 
+    # genericref because SMType not defined yet
     # does genericref take a performance hit?
-    type = GenericReferenceField(required=True)
+    type = GenericReferenceField(required=True,
+                                 db_field='type_id')
 
     prop = MapField(EmbeddedDocumentField(InstanceKey), required=False)
 
@@ -146,15 +147,26 @@ class SMType(SMDynDoc):
     ----------
     uid, owner, and prop inherited from SMDynDoc
 
-    name : str
+    type : mongoengine.ReferenceField(SMType)
+
+    name : str, unique
         The name of the type.
 
-    prop_keys : dict
+    type_of : str, choices('location', 'sample', 'request', 'class'), required
+    is_class : boolean, required
+
+    prop_keys : dict, optional
         dictionary of TypeKeys for the type
     """
+    # overide inherited required=True
+    type = ReferenceField('self', required=False, reverse_delete_rule=DENY,
+                                 db_field='type_id')
 
-    type = GenericReferenceField(required=False)  # overide inherited required=True
-    name = StringField(required=True)
+    name = StringField(required=True, unique=True)
+
+    type_of = StringField(required=True)
+    is_class = BooleanField(required=True)
+
     prop_keys = MapField(EmbeddedDocumentField(TypeKey), required=False)
 
     meta = {'collection': 'types'}
@@ -164,7 +176,8 @@ class SMPhysicalObj(SMDynDoc):
     """
     Superclass for physical objects (locations, samples) which:
 
-    - must have atleast one of 'identifier' or 'name'
+    - Must have atleast one of 'identifier' or 'name'.
+    - Name copied to identifier if only name given.
 
     Attributes
     ----------
@@ -201,11 +214,12 @@ class SMPhysicalObj(SMDynDoc):
         run_on_empty(self.__copy_name, [self]+list(args), kwargs, 'identifier', **kwargs)
 
 
-    identifier = StringField(required=True)
-    name = StringField()
+    identifier = StringField(required=True, unique_with='owner')
+    name = StringField(unique_with='owner')
 
-    location = GenericReferenceField()
-    position = StringField()
+    # genericref because Location not defined yet
+    location = GenericReferenceField(db_field='location_id')
+    position = StringField(unique_with='location_id')
 
     meta = {'abstract': True}
     
@@ -232,7 +246,7 @@ class Location(SMPhysicalObj):
         [can that be implemented in the class with identifier required=True?]
 
 
-        location:  str or id?  referencefield?
+        location:  referencefield
             We can have nested locations/containers.  meshes in pucks in dewars...
         position:  str, unique with location
             Discrete, addressable position within a location/container
@@ -271,8 +285,9 @@ class SampleGroup(SMDynDoc):
     # Should default to a ref to a 'generic_sample_group' type entry, 
     # which has a parent type of 'sample_group_type' or something?
 
-    name = StringField(required=True)
-    type = ReferenceField(SMType, required=True)
+    name = StringField(required=True, unique_with='owner')
+    type = ReferenceField(SMType, required=True, reverse_delete_rule=DENY,
+                          db_field='type_id')
 
     meta = {'collection': 'samples'}
     

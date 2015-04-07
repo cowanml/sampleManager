@@ -36,3 +36,14 @@ def run_on_empty(func, arg_list, arg_dict, key, **kwargs):
     except KeyError:
         return func(*arg_list, **arg_dict)
 
+def check_and_insert_key(key, dict, value):
+    """
+    Raise ValueError if the key exists in the dict with a different value.
+    """
+
+    try:
+        if dict[key] != value:
+            raise ValueError('key (' + str(key) + ') found with different value')
+
+    except KeyError:
+        dict[key] = value
