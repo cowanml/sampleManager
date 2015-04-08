@@ -132,11 +132,14 @@ class SMDynDoc(DynamicDocument):
         """
         If we're not given a uid or given None or '',
         generate a new, unused uid.
+
+        And dummy out owner for now... :(
         """
 
         DynamicDocument.__init__(self, *args, **kwargs)
 
         self.uid = str(run_on_empty(new_uid, [], {}, 'uid', **kwargs))
+        self.owner = 'skinner'
 
 
 class SMType(SMDynDoc):
