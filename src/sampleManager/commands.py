@@ -5,7 +5,8 @@ import six
 import datetime
 import logging
 import uuid
-from functools import wraps
+import functools
+
 from mongoengine import connect
 
 from metadatastore.document import Document
@@ -109,51 +110,49 @@ def _generic_query(**kwargs):
 
 # object "class" lists instead of inheritence? https://mongoengine-odm.readthedocs.org/guide/querying.html#querying-lists
 
-def find_samples(**kwargs):
-    """
-    """
 
-    for result in _generic_query(class_=Sample,
-                                 pop_ids=['type_id', 'location_id'],
-                                 norm_ids=['_id'],
-                                 order_by='type_id, name',
-                                 **kwargs):
-        yield result
+### these are actually function definitions!
+### and X.__doc__ is their docstring!
 
 
-def find_locations(**kwargs):
-    """
-    """
+# see the def of _generic_query to understand these kwargs
 
-    for result in _generic_query(class_=Location,
-                                 pop_ids=['type_id', 'location_id'],
-                                 norm_ids=['_id'],
-                                 order_by='type_id, name',
-                                 **kwargs):
-        yield result
+kwargs = {'pop_ids': ['type_id'], 'norm_ids': ['_id']}
 
-def find_requests(**kwargs):
-    """
-    """
+find_requests = functools.partial(_generic_query,
+                                  class_=Request,
+                                  **kwargs)
+find_requests.__name__ = 'find_requests'
+find_requests.__doc__ = """"""
 
-    for result in _generic_query(class_=Request,
-                                 pop_ids=['type_id'],
-                                 norm_ids=['_id'],
-                                 **kwargs):
-        yield result
 
+kwargs['order_by'] = 'type_id, name'
 
 # do we need this?
-def find_types(**kwargs):
-    """
-    """
+find_types = functools.partial(_generic_query,
+                               class_=SMType,
+                               **kwargs)
+find_types.__name__ = 'find_types'
+find_types.__doc__ = """"""
 
-    for result in _generic_query(class_=SMType,
-                                 pop_ids=['type_id'],
-                                 norm_ids=['_id'],
-                                 order_by='type_id, name',
-                                 **kwargs):
-        yield result
+
+kwargs['pop_ids'].append('location_id')
+
+find_samples = functools.partial(_generic_query,
+                                 class_=Sample,
+                                 **kwargs)
+find_samples.__name__ = 'find_samples'
+find_samples.__doc__ = """"""
+
+
+find_locations = functools.partial(_generic_query,
+                                   class_=Location,
+                                   **kwargs)
+find_locations.__name__ = 'find_locations'
+find_locations.__doc__ = """"""
+
+
+
 
 
 #def find_sample_groups(**kwargs):
@@ -209,6 +208,11 @@ def _insert_type(uid=None, owner=None, type=None, prop=None,
 
     # default uid creation inherited from SMDynDoc
 
+    if custom is None:
+        custom = {}
+
+    print(type)
+
     sm_type = SMType(uid=uid, owner=owner, type=type, prop=prop,
                      name=name,
                      type_of=type_of, is_class=is_class,
@@ -257,14 +261,16 @@ def _make_typeclass_routines(type_of):
 
     def _make_inserter(type_of, is_class):
 
-        #def _new_inserter(**kwargs):
         def _new_inserter(uid=None, owner=None, type=None, prop=None,
                           name=None,
                           type_of=None, is_class=None,
                           custom=None
                           ):
             ########
-            type = find_types()  # ?
+#            type = find_types()  # ?
+
+            if custom is None:
+                custom = {}
 
             _insert_type(uid=uid, owner=owner, type=type, prop=prop,
                          name=name,
@@ -341,6 +347,9 @@ def insert_sample(uid=None, owner=None, type=None, prop=None,
         Inserted mongoengine object
     """
 
+    if custom is None:
+        custom = {}
+
     sample = Sample(uid=uid, owner=owner, type=type, prop=prop,
                     name=name, identifier=identifier,
                     location=location, position=position,
@@ -353,32 +362,35 @@ def insert_sample(uid=None, owner=None, type=None, prop=None,
 
 
 # not quite fully baked...
-#def insert_sample_group(uid=None, owner=None, type=None, prop=None,
-#                        name=None, custom=None):
-#    """
-#    Holds info about related groups of samples.
-#
-#    eg. For measurements requiring multiple samples to complete,
-#    like tiny crystals which are destroyed before a full dataset
-#    can be collected... need lots of the tiny crystals, and this data
-#    structure to store overall completeness information, etc.
-#
-#    Parameters
-#    ----------
-#    uid, owner, type, and prop : inherited from SMDynDoc
-#
-#    name : str
-#       A short, human readable, name for the sample group.
-#    
-#    """
-#
-#    sample_group = SampleGroup(uid=uid, owner=owner, type=type, prop=prop,
-#                     name=name, **custom)
-#
-#    sample_group.save(validate=True, write_concert={"w": 1})
-#    logger.debug('Inserted Sample Group with uid %s', sample_group.uid)
-#
-#    return sample_group
+def insert_sample_group(uid=None, owner=None, type=None, prop=None,
+                        name=None, custom=None):
+    """
+    Holds info about related groups of samples.
+
+    eg. For measurements requiring multiple samples to complete,
+    like tiny crystals which are destroyed before a full dataset
+    can be collected... need lots of the tiny crystals, and this data
+    structure to store overall completeness information, etc.
+
+    Parameters
+    ----------
+    uid, owner, type, and prop : inherited from SMDynDoc
+
+    name : str
+       A short, human readable, name for the sample group.
+    
+    """
+
+    if custom is None:
+        custom = {}
+
+    sample_group = SampleGroup(uid=uid, owner=owner, type=type, prop=prop,
+                     name=name, **custom)
+
+    sample_group.save(validate=True, write_concert={"w": 1})
+    logger.debug('Inserted Sample Group with uid %s', sample_group.uid)
+
+    return sample_group
     
 
 
@@ -451,6 +463,9 @@ def insert_request(uid=None, owner=None, type=None, prop=None,
     request: mongoengine.Document
         Inserted mongoengine object
     """
+
+    if custom is None:
+        custom = {}
 
     request = Request(uid=uid, owner=owner, type=type, prop=prop,
                           **custom)
