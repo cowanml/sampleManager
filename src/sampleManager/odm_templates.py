@@ -136,7 +136,7 @@ class SMDynDoc(DynamicDocument):
 
         DynamicDocument.__init__(self, *args, **kwargs)
 
-        self.uid = run_on_empty(new_uid, [], {}, 'uid', **kwargs)
+        self.uid = str(run_on_empty(new_uid, [], {}, 'uid', **kwargs))
 
 
 class SMType(SMDynDoc):
