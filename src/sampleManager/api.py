@@ -13,7 +13,7 @@ from .commands import (insert_sample, insert_container, insert_request)
 # save_multiple_containers
 
 
-# above is from Arman's original sampleManager, below is from my notes:
+# above is from Arman's original samplemanager, below is from my notes:
 # add_sample -> create_sample
 # create_sample_group
 # maybe? create_{samples,containers,requests}

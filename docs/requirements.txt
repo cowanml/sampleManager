@@ -28,7 +28,7 @@ mongoengine
 # for pytest-dbfixtures
 # note!  had to do small hack to mirakuru :( to get 'tox -e 2.6' to work locally
 # need to redo if the virtualenv gets rebuilt
-# diff /h/cowan/projects/john_proto_dev.notes/sampleMangler/.tox/2.6/lib/python2.6/site-packages/mirakuru/compat.py{~,}                                      
+# diff /h/cowan/projects/john_proto_dev.notes/samplemangler/.tox/2.6/lib/python2.6/site-packages/mirakuru/compat.py{~,}                                      
 # 27c27
 # < if sys.version_info.major[0] == 2:
 # ---

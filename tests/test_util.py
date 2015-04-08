@@ -4,7 +4,7 @@ import pytest
 
 # add source dir to path.  Shouldn't tox take care of this for me?
 import sys
-sys.path.append('./src/sampleManager')
+sys.path.append('./src/samplemanager')
 
 
 import uuid

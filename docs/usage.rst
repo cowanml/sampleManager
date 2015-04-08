@@ -2,6 +2,6 @@
 Usage
 =====
 
-To use sampleManager in a project::
+To use samplemanager in a project::
 
-	import sampleManager
+	import samplemanager

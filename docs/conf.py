@@ -17,7 +17,7 @@ if os.getenv('SPELLCHECK'):
 
 source_suffix = '.rst'
 master_doc = 'index'
-project = u'sampleManager'
+project = u'samplemanager'
 copyright = u'2014, Brookhaven National Lab'
 version = release = re.findall(
     '\n[^#]*version=["\'](.*)["\']',
@@ -38,5 +38,5 @@ html_sidebars = {
 }
 html_short_title = '%s-%s' % (project, version)
 html_theme_options = {
-    'githuburl': 'https://github.com/cowanml/sampleManager/'
+    'githuburl': 'https://github.com/cowanml/samplemanager/'
 }

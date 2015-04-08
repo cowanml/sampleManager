@@ -1,4 +1,4 @@
-Welcome to sampleMangler's documentation!
+Welcome to samplemangler's documentation!
 ======================================
 
 Contents:

@@ -4,4 +4,4 @@ Installation
 
 At the command line::
 
-    pip install sampleManager
+    pip install samplemanager
