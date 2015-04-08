@@ -1,4 +1,4 @@
-Welcome to samplemangler's documentation!
+Welcome to samplemanager's documentation!
 ======================================
 
 Contents:
