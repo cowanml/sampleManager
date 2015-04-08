@@ -1,5 +1,12 @@
 language: python
 python: 2.7
+
+# use lightweight "container" vms on travis... faster!
+sudo: false
+
+services:
+  - mongodb
+
 env:
   global:
     LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
@@ -9,16 +16,30 @@ env:
     - TOXENV={{ env }}{% if config.cover %},coveralls{% endif %}
 
 {% endfor %}
+
+# need to make matrix generator in bootstrap.py used ordereddict or something
+# to avoid flipflopping the order :(
+matrix:
+  allow_failures:
+    - env:  TOXENV=pypy,coveralls
+    - env:  TOXENV=nocover-pypy
+    - env:  TOXENV=coveralls,pypy
+    - env:  TOXENV=pypy-nocover
+  fast_finish:  true
+
 before_install:
   - python --version
   - virtualenv --version
   - pip --version
   - uname -a
   - lsb_release -a
+
 install:
   - pip install tox
+
 script:
   - tox -v
+
 notifications:
   email:
     on_success: never

@@ -1,16 +1,34 @@
+# readthedocs needs these here? :(
+# seems like we shouldn't need numpy to build docs?
+# or doc crap when not building docs...
+# seems nonoptimal
 #sphinx
-#sphinxcontrib-napoleon
-#sphinx-py3doc-enhanced-theme
-pytest-dbfixtures
-importlib
-pymongo
-numpy
-#mongoengine
+sphinxcontrib-napoleon
+sphinx_py3doc_enhanced_theme
+
+#pytest-dbfixtures
+#importlib
+
+# mv ordereddict to tox.. py vers dep
+#OrderedDict
+
+# why was numpy even here?
+#numpy + pypy isnt happy in travis :(
+#numpy
+
+pyaml
+
+#pymongo
+mongoengine
+
+#-e git://github.com/NSLS-II/metadatastore.git#egg=metadatastore
 -e .
 
+
+# for pytest-dbfixtures
 # note!  had to do small hack to mirakuru :( to get 'tox -e 2.6' to work locally
 # need to redo if the virtualenv gets rebuilt
-# diff /h/cowan/projects/john_proto_dev.notes/sampleMangler/.tox/2.6/lib/python2.6/site-packages/mirakuru/compat.py{~,}                                      
+# diff /h/cowan/projects/john_proto_dev.notes/samplemangler/.tox/2.6/lib/python2.6/site-packages/mirakuru/compat.py{~,}                                      
 # 27c27
 # < if sys.version_info.major[0] == 2:
 # ---
