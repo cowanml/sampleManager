@@ -33,6 +33,12 @@ before_install:
   - pip --version
   - uname -a
   - lsb_release -a
+  - export MDS_HOST=localhost
+  - export MDS_DATABASE=test
+  - export MDS_TIMEZONE=US/Eastern
+  - mkdir -p /home/travis/.config/metadatastore
+  - 'echo ''port: 27017'' > /home/travis/.config/metadatastore/connection.yml'
+
 
 install:
   - pip install tox
