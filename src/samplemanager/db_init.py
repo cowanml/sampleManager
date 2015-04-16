@@ -15,7 +15,7 @@ from samplemanager import conf
 
 
 from .util import new_uid
-from .odm_templates import (Sample, SampleGroup, Container, Request, SMType)
+from .odm_templates import (Sample, SampleGroup, Location, Request, SMType)
 
 
 logger = logging.getLogger(__name__)

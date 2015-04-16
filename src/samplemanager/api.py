@@ -1,9 +1,9 @@
 # Data retrieval
 #from .commands import (find, find_samples, find_containers, find_requests,)
-from .commands import (find_samples, find_containers, find_requests,)
+from .commands import (find_samples, find_locations, find_requests,)
 
 # Data insertion/modification
-from .commands import (insert_sample, insert_container, insert_request)
+from .commands import (insert_sample, insert_location, insert_request)
 #from .commands import (save_sample, save_container, save_request)
 #from .commands import (change_request_priority, change_sample_container)
 #from .commands import (toggle_sample, update_container_status)
