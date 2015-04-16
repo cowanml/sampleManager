@@ -21,7 +21,11 @@ pyaml
 #pymongo
 mongoengine
 
--e git://github.com/NSLS-II/metadatastore.git#egg=metadatastore
+# mds is conda'd... and tox/pip don't pick up reqs from conda recipe?
+# so some mds deps here :(
+pytz
+-e git://github.com/cowanml/metadatastore.git@dev#egg=metadatastore
+
 -e .
 
 
