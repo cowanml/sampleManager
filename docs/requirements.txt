@@ -21,6 +21,8 @@ pyaml
 #pymongo
 mongoengine
 
+nose
+
 # mds is conda'd... and tox/pip don't pick up reqs from conda recipe?
 # so some mds deps here :(
 pytz
