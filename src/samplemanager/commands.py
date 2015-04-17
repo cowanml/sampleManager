@@ -6,6 +6,7 @@ import datetime
 import logging
 import uuid
 import functools
+import itertools
 
 from mongoengine import connect
 
@@ -287,8 +288,8 @@ def _make_typeclass_routines(type_of):
         return _new_inserter
 
 
-    return(map(_make_finder, [type_of]*2, [True, False]) +
-           map(_make_inserter, [type_of]*2, [True, False]))
+    return(itertools.chain(map(_make_finder, [type_of]*2, [True, False]) +
+                           map(_make_inserter, [type_of]*2, [True, False])))
 
 
 # make find+insert routines for sample/location/request types/classes
