@@ -211,7 +211,8 @@ class SMPhysicalObj(SMDynDoc):
         """
         
         # superclass __init__
-        DynamicDocument.__init__(self, *args, **kwargs)  # or SMDynDoc?
+#        DynamicDocument.__init__(self, *args, **kwargs)  # or SMDynDoc?
+        SMDynDoc.__init__(self, *args, **kwargs)  # or we don't get auto uid?
 
         # copy 'name' to 'identifier' if needed
         run_on_empty(self.__copy_name, [self]+list(args), kwargs, 'identifier', **kwargs)
@@ -376,3 +377,6 @@ class Request(SMDynDoc):
     """
 
     meta = {'collection': 'requests'}
+
+
+collections = [SMType, Location, Sample, Request]

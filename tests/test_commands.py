@@ -11,12 +11,23 @@ sys.path.append('./src/samplemanager')
 
 import metadatastore.commands as mdsc
 from metadatastore.api import Document
+from metadatastore.utils.testing import (dbtest_setup, dbtest_teardown)
+
+from samplemanager.odm_templates import collections
+
 from samplemanager import commands as smc
+
+
+def setup():
+    dbtest_setup(collections)
+
+def teardown():
+    dbtest_teardown(collections, drop_db=False)
 
 
 def _type_tester(**kwargs):
     smt = smc._insert_type(**kwargs)
-    q_ret = smc.find_types(_id=smt.id)[0]
+    q_ret = list(smc.find_types(_id=smt.id))[0]
     assert(bson.ObjectId(q_ret.id) == q_ret.id)
 
     doc = Document.from_mongo(smt)
@@ -32,8 +43,7 @@ def test_type_insert():
                     'name': 'tsamp1',
                     'type_of': 'sample',
                     'is_class': False}]:
-        tmp = _type_tester(**kwargs)
-        yield tmp
+        yield _type_tester(**kwargs)
 
 
 if __name__ == '__main__':

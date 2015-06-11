@@ -12,13 +12,15 @@ from mongoengine import connect
 
 from metadatastore.document import Document
 from metadatastore.commands import (db_connect,
-                                    db_disconnect)
-from metadatastore.commands import (_ensure_connection,
-                                    _normalize_object_id,
+                                    db_disconnect,
+                                    ensure_connection)
+from metadatastore.commands import (_normalize_object_id,
                                     _format_time,
                                     _as_document)
 
 from . import conf
+from .conf import ALIAS
+
 
 from .util import (new_uid, get_owner, check_and_insert_key)
 from .odm_templates import (Sample, Location, Request, SMType)
@@ -26,11 +28,19 @@ from .odm_templates import (Sample, Location, Request, SMType)
 
 logger = logging.getLogger(__name__)
 
+def debug_connection(conf=conf):
+    print(conf.db_connect_args)
+    return ensure_connection(conf=conf)
+
+#_ensure_connection = ensure_connection(conf=conf)
+_ensure_connection = debug_connection(conf=conf)
+
 
 # Data retrieval 
 
 # hrm... not sure this is better than the bunch of small
 # duplications it avoided?
+@_ensure_connection
 def _generic_query(**kwargs):
     """
     """
@@ -163,7 +173,7 @@ find_locations.__doc__ = """"""
 
 
 # type/class query and insertion
-
+@_ensure_connection
 def _insert_type(uid=None, owner=None, type=None, prop=None,
                  name=None,
                  type_of=None, is_class=False,
@@ -226,6 +236,7 @@ def _insert_type(uid=None, owner=None, type=None, prop=None,
     return sm_type
     
 
+@_ensure_connection
 def _make_typeclass_routines(type_of):
     """
     return a type and class finder given an object type
@@ -310,6 +321,7 @@ def _make_typeclass_routines(type_of):
 
 # Data insertion/modification
 
+@_ensure_connection
 def insert_sample(uid=None, owner=None, type=None, prop=None,
                   name=None, identifier=None,
                   location=None, position=None,
@@ -363,6 +375,7 @@ def insert_sample(uid=None, owner=None, type=None, prop=None,
 
 
 # not quite fully baked...
+@_ensure_connection
 def insert_sample_group(uid=None, owner=None, type=None, prop=None,
                         name=None, custom=None):
     """
@@ -394,7 +407,7 @@ def insert_sample_group(uid=None, owner=None, type=None, prop=None,
     return sample_group
     
 
-
+@_ensure_connection
 def insert_location(uid=None, owner=None, type=None, prop=None,
                      name=None, identifier=None,
                      location=None, position=None,
@@ -444,6 +457,7 @@ def insert_location(uid=None, owner=None, type=None, prop=None,
     return location
 
 
+@_ensure_connection
 def insert_request(uid=None, owner=None, type=None, prop=None,
                    custom=None):
     """
