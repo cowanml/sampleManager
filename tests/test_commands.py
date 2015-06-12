@@ -9,20 +9,21 @@ from nose.tools import assert_equal
 import sys
 sys.path.append('./src/samplemanager')
 
-import metadatastore.commands as mdsc
 from metadatastore.api import Document
-from metadatastore.utils.testing import (dbtest_setup, dbtest_teardown)
+from metadatastore.utils.testing import (dbtest_setup, dbtest_teardown, conn, test_db_params)
 
 from samplemanager.odm_templates import collections
-
 from samplemanager import commands as smc
 
 
+test_db_params{'name': "sm_testing_disposable_{0}".format(str(uuid.uuid4())),
+               'alias': 'sm'}
+
 def setup():
-    dbtest_setup(collections)
+    dbtest_setup(collections, test_db_params)
 
 def teardown():
-    dbtest_teardown(collections, drop_db=False)
+    dbtest_teardown(collections, test_db_params)  # can pass drop_db=False to keep db
 
 
 def _type_tester(**kwargs):
