@@ -13,7 +13,7 @@ from mongoengine import connect
 from metadatastore.commands import ensure_connection
 from metadatastore.commands import (_normalize_object_id,
                                     _format_time,
-                                    _as_document)
+                                    _AsDocument)
 
 from . import conf
 from .conf import ALIAS
@@ -81,6 +81,8 @@ def _generic_query(**kwargs):
 
 
     objects = class_.objects(__raw__=kwargs).order_by(order_by)
+
+    _as_document = _AsDocument()
 
     for obj in objects:
         yield _as_document(obj)
