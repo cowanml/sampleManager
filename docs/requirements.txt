@@ -27,8 +27,8 @@ nose
 # so some mds deps here :(
 pytz
 #-e git://github.com/cowanml/metadatastore.git@dev#egg=metadatastore
-#-e git://github.com/cowanml/metadatastore.git@generalize_db_utils#egg=metadatastore
--e git://github.com/cowanml/metadatastore.git@gendb_and_py26#egg=metadatastore
+-e git://github.com/cowanml/metadatastore.git@generalize_db_utils#egg=metadatastore
+#-e git://github.com/cowanml/metadatastore.git@gendb_and_py26#egg=metadatastore
 #-e git://github.com/nsls-ii/metadatastore.git#egg=metadatastore
 
 -e .

@@ -3,6 +3,8 @@ from __future__ import (absolute_import)
 # imports needed for testing
 import bson
 import pytest
+import uuid
+
 from nose.tools import assert_equal
 
 # add source dir to path.  Shouldn't tox take care of this for me?
@@ -16,8 +18,8 @@ from samplemanager.odm_templates import collections
 from samplemanager import commands as smc
 
 
-test_db_params{'name': "sm_testing_disposable_{0}".format(str(uuid.uuid4())),
-               'alias': 'sm'}
+test_db_params = {'name': "sm_testing_disposable_{0}".format(str(uuid.uuid4())),
+                  'alias': 'sm'}
 
 def setup():
     dbtest_setup(collections, test_db_params)
